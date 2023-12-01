@@ -26,39 +26,37 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       </div>
 
       <ul className="sidebar-list">
-        <li className="sidebar-list-item">
-          <a onClick={() => navigate("/")}>
+        <li
+          className="sidebar-list-item"
+          onClick={() => navigate("/dashboard")}
+        >
+          <a href="">
             <BsGrid1X2Fill className="icon" /> Dashboard
           </a>
         </li>
-        <li className="sidebar-list-item">
-          <a onClick={() => navigate("/new")}>
-            <BsFillArchiveFill className="icon" /> Tab Mới Ne Mày
+        <li className="sidebar-list-item" onClick={() => navigate("/vet")}>
+          <a href="">
+            <BsFillArchiveFill className="icon" /> Bác sĩ thú y
           </a>
         </li>
-        <li className="sidebar-list-item">
+        <li className="sidebar-list-item" onClick={() => navigate("/customer")}>
           <a href="">
-            <BsFillGrid3X3GapFill className="icon" /> Categories
+            <BsPeopleFill className="icon" /> Khách hàng
           </a>
         </li>
-        <li className="sidebar-list-item">
+        <li className="sidebar-list-item" onClick={() => navigate("/slot")}>
           <a href="">
-            <BsPeopleFill className="icon" /> Customers
+            <BsFillGrid3X3GapFill className="icon" /> Lịch
           </a>
         </li>
-        <li className="sidebar-list-item">
+        <li className="sidebar-list-item" onClick={() => navigate("/service")}>
           <a href="">
-            <BsListCheck className="icon" /> Inventory
+            <BsListCheck className="icon" /> Dịch vụ
           </a>
         </li>
-        <li className="sidebar-list-item">
+        <li className="sidebar-list-item" onClick={() => navigate("/config")}>
           <a href="">
-            <BsMenuButtonWideFill className="icon" /> Reports
-          </a>
-        </li>
-        <li className="sidebar-list-item">
-          <a href="">
-            <BsFillGearFill className="icon" /> Setting
+            <BsFillGearFill className="icon" /> Cấu hình
           </a>
         </li>
       </ul>
