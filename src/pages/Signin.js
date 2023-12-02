@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import styles from "./Signin.module.scss";
-import { api } from "../services/axios";
 import { toast } from "react-toastify";
+
+import createAxios from "../services/axios";
+const API = createAxios();
 
 const Signin = () => {
   const [phone, setPhone] = useState("");
@@ -17,32 +19,16 @@ const Signin = () => {
     e.preventDefault();
 
     // Gửi yêu cầu đăng nhập đến API sử dụng Axios
-    api
+    API
       .post(`/login/?phone=${phone}&password=${password}`)
       .then((response) => {
         // Xử lý phản hồi từ API khi đăng nhập thành công
-        console.log("Đăng nhập thành công:", response.data.data);
-        const { accessToken } = response.data.data;
+        console.log("Đăng nhập thành công:", response.data);
+        const { accessToken } = response.data.accessToken;
         localStorage.setItem("accessToken", accessToken);
-        const { account_id, name, service_id } = response.data.data.data;
-        localStorage.setItem("account_id", account_id);
-        localStorage.setItem("name", name);
-        localStorage.setItem("service_id", service_id);
-        localStorage.setItem("role", response.data.data.role);
-        const role = response.data.data.role;
-        console.log(role);
-        if (role === "vet") {
-          if (service_id === "S001") {
-            window.location.href = "/examing";
-          } else if (service_id === "S013") {
-            window.location.href = "/boarding";
-          } else if (service_id === "S009") {
-            window.location.href = "/grooming";
-          } else {
-            window.location.href = "/retesting";
-          }
-        } else if (role === "staff") {
-          window.location.href = "/track";
+        const { role } = response.data;
+        if (role === "manager") {
+          window.location.href = "/dashboard";
         }
       })
       .catch((error) => {
