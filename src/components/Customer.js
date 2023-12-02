@@ -71,12 +71,10 @@ const columns = [
     title: "Trạng thái",
     dataIndex: "account",
     render: (accountData) => {
-      // Truy cập và trả về giá trị của trường status trong account
       return accountData ? accountData.status : '';
     },
     width: "10%",
     sorter: (a, b) => {
-      // Trả về kết quả so sánh dựa trên giá trị status trong account
       if (a.account && b.account) {
         return a.account.status.localeCompare(b.account.status);
       }
