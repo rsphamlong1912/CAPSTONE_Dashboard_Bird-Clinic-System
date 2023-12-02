@@ -1,0 +1,21 @@
+.container {
+  background-color: #e5e5e5;
+  min-width: 1400px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: "column";
+  margin: 50px;
+  padding: 50px;
+  border-radius: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  input {
+    padding: 10px 20px;
+    width: 80%;
+    border-radius: 5px;
+    border: 1px solid #e5e5e5;
+  }
+}
