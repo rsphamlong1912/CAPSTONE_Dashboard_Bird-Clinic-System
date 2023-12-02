@@ -1,25 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BsCart3,
   BsGrid1X2Fill,
   BsFillArchiveFill,
   BsFillGrid3X3GapFill,
   BsPeopleFill,
-  BsListCheck,
+  BsStack ,
   BsMenuButtonWideFill,
   BsFillGearFill,
+  BsFillPersonLinesFill,
+  BsCalendar2EventFill  
 } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
+  const [onFocusSidebar, setOnFocusSidebar] = useState("");
   const navigate = useNavigate();
   return (
     <aside
       id="sidebar"
-      className={openSidebarToggle ? "sidebar-responsive" : ""}
+      className={openSidebarToggle ? "sidebar-responsive" : "" }
     >
       <div className="sidebar-title">
-        <div className="sidebar-brand">BIRD CLINIC</div>
+        <div className="sidebar-brand">Bird<span className="black-text">Clinic</span></div>
         <span className="icon close_icon" onClick={OpenSidebar}>
           X
         </span>
@@ -27,37 +30,26 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 
       <ul className="sidebar-list">
         <li
-          className="sidebar-list-item"
-          onClick={() => navigate("/dashboard")}
+          className={`sidebar-list-item ${onFocusSidebar === "" ? "active" : ""}`}
+          onClick={() => {navigate("/dashboard"); setOnFocusSidebar("")}}
         >
-          <a href="">
             <BsGrid1X2Fill className="icon" /> Dashboard
-          </a>
         </li>
-        <li className="sidebar-list-item" onClick={() => navigate("/vet")}>
-          <a href="">
-            <BsFillArchiveFill className="icon" /> Bác sĩ thú y
-          </a>
+        <li className={`sidebar-list-item ${onFocusSidebar === "vet" ? "active" : ""}`} onClick={() => {navigate("/vet"); setOnFocusSidebar("vet")}}>
+            <BsFillPersonLinesFill  className="icon" /> Nhân sự
         </li>
-        <li className="sidebar-list-item" onClick={() => navigate("/customer")}>
-          <a href="">
+        <li className={`sidebar-list-item ${onFocusSidebar === "customer" ? "active" : ""}`} onClick={() => {navigate("/customer"); setOnFocusSidebar("customer")}}>
             <BsPeopleFill className="icon" /> Khách hàng
-          </a>
+          
         </li>
-        <li className="sidebar-list-item" onClick={() => navigate("/slot")}>
-          <a href="">
-            <BsFillGrid3X3GapFill className="icon" /> Lịch
-          </a>
+        <li className={`sidebar-list-item ${onFocusSidebar === "slot" ? "active" : ""}`} onClick={() => {navigate("/slot"); setOnFocusSidebar("slot")}}>
+            <BsCalendar2EventFill   className="icon" /> Lịch phòng khám
         </li>
-        <li className="sidebar-list-item" onClick={() => navigate("/service")}>
-          <a href="">
-            <BsListCheck className="icon" /> Dịch vụ
-          </a>
+        <li className={`sidebar-list-item ${onFocusSidebar === "service" ? "active" : ""}`} onClick={() => {navigate("/service"); setOnFocusSidebar("service")}}>
+            <BsStack  className="icon" /> Dịch vụ
         </li>
-        <li className="sidebar-list-item" onClick={() => navigate("/config")}>
-          <a href="">
+        <li className={`sidebar-list-item ${onFocusSidebar === "config" ? "active" : ""}`} onClick={() => {navigate("/config");setOnFocusSidebar("config")}}>
             <BsFillGearFill className="icon" /> Cấu hình
-          </a>
         </li>
       </ul>
     </aside>

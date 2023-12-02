@@ -167,6 +167,7 @@ const Customer = () => {
 
   return (
     <div className={styles.container}>
+    <h1>Danh sách khách hàng</h1>
       <Table columns={columns} dataSource={dataCustomer} onChange={onChange} />
     </div>
   );

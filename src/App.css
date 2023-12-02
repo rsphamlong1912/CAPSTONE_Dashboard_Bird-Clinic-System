@@ -77,9 +77,13 @@ body {
 
 .sidebar-brand {
   margin-top: 15px;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 900;
   color: #fff;
+}
+
+.black-text {
+  color: black;
 }
 
 .sidebar-list {
@@ -90,9 +94,16 @@ body {
 .sidebar-list-item {
   padding: 20px 20px 20px 20px;
   font-size: 18px;
+  color: #fff;
+  font-weight: 500;
 }
 
 .sidebar-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.active {
   background-color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
 }

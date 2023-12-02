@@ -24,7 +24,7 @@ const Signin = () => {
       .then((response) => {
         // Xử lý phản hồi từ API khi đăng nhập thành công
         console.log("Đăng nhập thành công:", response.data);
-        const { accessToken } = response.data.accessToken;
+        const accessToken = response.data.accessToken;
         localStorage.setItem("accessToken", accessToken);
         const { role } = response.data;
         if (role === "manager") {
