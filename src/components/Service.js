@@ -3,7 +3,7 @@ import { Button, Flex } from "antd";
 import { Table } from "antd";
 import styles from "./Service.module.scss";
 import { EditFilled } from "@ant-design/icons";
-import { Tabs, Modal } from "antd";
+import { Tabs, Modal, message } from "antd";
 
 import createAxios from "../services/axios";
 const API = createAxios();
@@ -86,6 +86,31 @@ const columns = [
   },
 ];
 
+const columnsBirdBreed = [
+  {
+    title: "STT",
+    dataIndex: "breed_id",
+    sorter: (a, b) => a.breed_id - b.breed_id,
+    width: "10%",
+  },
+  {
+    title: "Giống",
+    dataIndex: "breed",
+    width: "30%",
+  },
+  {
+    title: "Kích thước",
+    dataIndex: "bird_size_id",
+    sorter: (a, b) => a.bird_size_id - b.bird_size_id,
+    width: "30%",
+  },
+  {
+    title: "Hành động",
+    dataIndex: "action",
+    width: "10%",
+  },
+];
+
 // const onChange = (pagination, filters, sorter, extra) => {
 //   console.log("params", pagination, filters, sorter, extra);
 // };
@@ -96,6 +121,7 @@ const Service = () => {
   const [serviceTypeList, setServiceTypeList] = useState([]);
   const [serviceSelected, setServiceSelected] = useState();
   const [servicePackageList, setServicePackageList] = useState([]);
+  const [birdBreedList, setBirdBreedList] = useState([]);
 
   //tab 1
   const [dataService, setDataService] = useState({
@@ -136,11 +162,40 @@ const Service = () => {
         {
           name: dataService.package_name,
           price: dataService.price,
-          detail: dataService.description,
+          description: dataService.description,
         }
       );
       if (response) {
         console.log("Change thanh cong");
+        message.success(`Update service thành công.`);
+        fetchServicePackage();
+        fetchServiceType();
+      }
+    } catch (error) {
+      console.log(error);
+      message.error(`Update service thất bại.`);
+
+    }
+  };
+
+  const fetchBirdBreed = async () => {
+    try {
+      const response = await API.get(`/bird_breed/`);
+      if (response.data) {
+        console.log("Data bird breed", response.data);
+        const dataAfterMap = response.data.map((item, index) => ({
+          ...item,
+          action: (
+            <Button
+              type="default"
+              icon={<EditFilled />}
+              onClick={() => {}}
+            >
+              Chỉnh sửa
+            </Button>
+          ),
+        }));
+        setBirdBreedList(dataAfterMap);
       }
     } catch (error) {
       console.log(error);
@@ -152,7 +207,8 @@ const Service = () => {
       const response = await API.get(`/serviceType/`);
       if (response.data) {
         console.log("Data service type", response.data);
-        setServiceTypeList(response.data);
+        const filterArray = response.data.filter((item)=> item.service_type_id !== "STfake")
+        setServiceTypeList(filterArray);
       }
     } catch (error) {
       console.log(error);
@@ -163,7 +219,8 @@ const Service = () => {
       const response = await API.get(`/servicePackage/?service_type_id=${tab}`);
       if (response.data) {
         console.log("Data service package", response.data);
-        const dataAfterMap = response.data.map((item, index) => ({
+        const filterArray = response.data.filter((item)=> item.service_package_id !== "SP13" && item.service_package_id !== "SP9")
+        const dataAfterMap = filterArray.map((item, index) => ({
           ...item,
           index: index + 1,
           action: (
@@ -185,6 +242,7 @@ const Service = () => {
 
   useEffect(() => {
     fetchServiceType();
+    fetchBirdBreed();
   }, []);
 
   useEffect(() => {
@@ -256,6 +314,12 @@ const Service = () => {
       <Table
         columns={columns}
         dataSource={servicePackageList}
+        onChange={onChange}
+      />
+      <h1>Danh sách giống chim</h1>
+      <Table
+        columns={columnsBirdBreed}
+        dataSource={birdBreedList}
         onChange={onChange}
       />
     </div>
