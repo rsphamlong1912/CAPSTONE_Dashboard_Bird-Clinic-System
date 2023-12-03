@@ -39,7 +39,10 @@ const columns = [
   },
   {
     title: "Dịch vụ",
-    dataIndex: "service_name",
+    dataIndex: "service",
+    render: (serviceName) => {
+      return serviceName ? serviceName.name : "";
+    },
     sorter: (a, b) => a.service_name.localeCompare(b.service_name),
     width: "20%",
   },
