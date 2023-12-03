@@ -10,6 +10,7 @@ import Customer from "./components/Customer";
 import Slot from "./components/Slot";
 import Service from "./components/Service";
 import Config from "./components/Config";
+import {ConfigProvider} from 'antd';
 
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
@@ -19,6 +20,18 @@ function App() {
   };
 
   return (
+    <ConfigProvider
+    theme={{
+      token: {
+        // Seed Token
+        colorPrimary: '#32B768',
+        fontFamily: "Inter",
+        fontSize: 15,
+        // Alias Token
+        colorBgContainer: '#ffffff',
+      },
+    }}
+  >
     <div className="grid-container">
       <Routes>
         <Route path="/" element={<Signin />} />
@@ -102,6 +115,7 @@ function App() {
         />
       </Routes>
     </div>
+    </ConfigProvider>
   );
 }
 
