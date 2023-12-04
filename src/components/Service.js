@@ -323,8 +323,8 @@ const Service = () => {
   }, [tab]);
 
   return (
-    <div className={styles.container}>
-      <h1>Danh sách dịch vụ</h1>
+    <main className="main-container">
+      <h1 style={{color: 'black'}}>Danh sách dịch vụ</h1>
       <Button
         type="primary"
         value="large"
@@ -514,7 +514,7 @@ const Service = () => {
         dataSource={servicePackageList}
         onChange={onChange}
       />
-      <h1>Danh sách giống chim</h1>
+      <h1 style={{color: 'black'}}>Danh sách giống chim</h1>
       <Button
         type="primary"
         value="large"
@@ -604,7 +604,7 @@ const Service = () => {
         dataSource={birdBreedList}
         onChange={onChange}
       />
-    </div>
+    </main>
   );
 };
 
