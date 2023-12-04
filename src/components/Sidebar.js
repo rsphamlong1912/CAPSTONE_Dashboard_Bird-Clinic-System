@@ -40,7 +40,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
             <BsPersonCircle   className="icon" /> Tài khoản
         </li>
         <li className={`sidebar-list-item ${onFocusSidebar === "vet" ? "active" : ""}`} onClick={() => {navigate("/vet"); setOnFocusSidebar("vet")}}>
-            <BsFillPersonLinesFill  className="icon" /> Nhân sự
+            <BsFillPersonLinesFill  className="icon" /> Bác sĩ
         </li>
         <li className={`sidebar-list-item ${onFocusSidebar === "customer" ? "active" : ""}`} onClick={() => {navigate("/customer"); setOnFocusSidebar("customer")}}>
             <BsPeopleFill className="icon" /> Khách hàng
