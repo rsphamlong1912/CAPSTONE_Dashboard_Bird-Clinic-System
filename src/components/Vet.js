@@ -410,7 +410,7 @@ const Vet = () => {
   }, [serviceType]);
 
   return (
-    <div className={styles.container}>
+    <main className="main-container">
       <div className={styles.top}>
         <h1 style={{ color: "black" }}>DANH SÁCH BÁC SĨ</h1>
         <Button
@@ -456,7 +456,7 @@ const Vet = () => {
         </Modal>
       </div>
       <Table columns={columns} dataSource={dataVet} onChange={onChange} />
-    </div>
+    </main>
   );
 };
 
