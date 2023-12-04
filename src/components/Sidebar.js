@@ -9,7 +9,8 @@ import {
   BsMenuButtonWideFill,
   BsFillGearFill,
   BsFillPersonLinesFill,
-  BsCalendar2EventFill  
+  BsCalendar2EventFill  ,
+  BsPersonCircle 
 } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
@@ -34,6 +35,9 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           onClick={() => {navigate("/dashboard"); setOnFocusSidebar("")}}
         >
             <BsGrid1X2Fill className="icon" /> Dashboard
+        </li>
+        <li className={`sidebar-list-item ${onFocusSidebar === "account" ? "active" : ""}`} onClick={() => {navigate("/account"); setOnFocusSidebar("account")}}>
+            <BsPersonCircle   className="icon" /> Tài khoản
         </li>
         <li className={`sidebar-list-item ${onFocusSidebar === "vet" ? "active" : ""}`} onClick={() => {navigate("/vet"); setOnFocusSidebar("vet")}}>
             <BsFillPersonLinesFill  className="icon" /> Nhân sự

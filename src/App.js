@@ -11,7 +11,7 @@ import Slot from "./components/Slot";
 import Service from "./components/Service";
 import Config from "./components/Config";
 import {ConfigProvider} from 'antd';
-
+import Account from "./components/Account";
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
 
@@ -45,6 +45,19 @@ function App() {
                 OpenSidebar={OpenSidebar}
               />
               <Home />
+            </>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <>
+              <Header OpenSidebar={OpenSidebar} />
+              <Sidebar
+                openSidebarToggle={openSidebarToggle}
+                OpenSidebar={OpenSidebar}
+              />
+              <Account />
             </>
           }
         />
