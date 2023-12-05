@@ -184,8 +184,8 @@ const Slot = () => {
 
 
   return (
-    <div className={styles.container}>
-      <h1 style={{color: '#111', marginBottom: 30}}>Cập nhật lịch khám</h1>
+    <main className="main-container">
+      <h1 style={{color: '#111', marginBottom: 30}}>LỊCH KHÁM</h1>
       <div>
         <Tabs
           onChange={onChange}
@@ -193,7 +193,7 @@ const Slot = () => {
           items={itemTabs}
         />
       </div>
-    </div>
+    </main>
   );
 };
 
