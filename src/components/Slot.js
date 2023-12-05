@@ -52,7 +52,7 @@ const Slot = () => {
       formData.append("excelFile", fileList[0]);
 
       const response = await
-        API.postWithHeaders(`/time_slot_clinic/with-file`, formData, {
+        API.postWithHeaders(`/time-slot-clinic/with-file`, formData, {
           "Content-Type": "multipart/form-data",
         })   
 
@@ -70,7 +70,7 @@ const Slot = () => {
 
   const fetchDataSlotClinic = async () => {
     try {
-      const response = await API.get(`/slot_clinic/`);
+      const response = await API.get(`/slot-clinic/`);
       if (response.data) {
         console.log("Data slot clinic", response.data);
         const arrayAfterSort = response.data.sort((a,b)=> a.slot_clinic_id - b.slot_clinic_id)
@@ -92,7 +92,7 @@ const Slot = () => {
       formData.append("excelFile", fileList[0]);
 
       const response = await
-        API.postWithHeaders(`/veterinarianSlotDetail/with-file`, formData, {
+        API.postWithHeaders(`/veterinarian-slot-detail/with-file`, formData, {
           "Content-Type": "multipart/form-data",
         })   
 

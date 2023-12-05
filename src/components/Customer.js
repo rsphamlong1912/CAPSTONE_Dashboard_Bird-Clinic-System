@@ -166,10 +166,10 @@ const Customer = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
-    <h1>Danh sách khách hàng</h1>
+    <main className="main-container">
+    <h1 style={{color: 'black'}}>DANH SÁCH KHÁCH HÀNG</h1>
       <Table columns={columns} dataSource={dataCustomer} onChange={onChange} />
-    </div>
+    </main>
   );
 };
 

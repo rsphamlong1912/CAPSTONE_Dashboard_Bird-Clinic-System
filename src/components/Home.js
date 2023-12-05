@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BsFillArchiveFill,
   BsFillGrid3X3GapFill,
   BsPeopleFill,
   BsFillBellFill,
 } from "react-icons/bs";
+import { TrophyOutlined } from "@ant-design/icons";
 import {
   BarChart,
   Bar,
@@ -19,9 +20,136 @@ import {
   Line,
 } from "recharts";
 import createAxios from "../services/axios";
+import { Form, Select } from "antd";
+import styles from "./Home.module.scss";
 const API = createAxios();
 
 function Home() {
+  const [bookingList, setBookingList] = useState();
+  const [serviceFormDetailList, setServiceFormDetailList] = useState();
+  const [rankServiceList, setRankServiceList] = useState();
+
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  const fetchBooking = async () => {
+    try {
+      const response = await API.get(`/booking`);
+      if (response.data) {
+        console.log("Data booking", response.data);
+        setBookingList(response.data);
+        setTotalPrice(
+          response.data.reduce((accumulator, item) => {
+            const price = parseFloat(item.money_has_paid);
+            return accumulator + price;
+          }, 0)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchServiceFormDetail = async () => {
+    try {
+      const response = await API.get(`/service-form-detail`);
+      if (response.data) {
+        console.log("Data SFD", response.data);
+        setServiceFormDetailList(response.data);
+        /// Tạo một object để đếm số lần xuất hiện của từng service_package_id
+        const countServices = response.data.reduce((count, item) => {
+          const { service_package_id, note } = item;
+          count[service_package_id] = count[service_package_id] || {
+            count: 0,
+            note: note,
+          };
+          count[service_package_id].count++;
+          return count;
+        }, {});
+
+        // Chuyển object thành một mảng các đối tượng có dạng { service_package_id, count, note }
+        const serviceCountsArray = Object.keys(countServices).map(
+          (service_package_id) => ({
+            service_package_id,
+            count: countServices[service_package_id].count,
+            note: countServices[service_package_id].note,
+          })
+        );
+
+        // Sắp xếp mảng theo số lần xuất hiện từ cao đến thấp
+        setRankServiceList(
+          serviceCountsArray.sort((a, b) => b.count - a.count)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBookingFilter = (value) => {
+    switch (value) {
+      case "0":
+        setTotalPrice(
+          bookingList.reduce((accumulator, item) => {
+            const price = parseFloat(item.money_has_paid);
+            return accumulator + price;
+          }, 0)
+        );
+        break;
+      case "1":
+        const newArr1 = bookingList.filter(
+          (item) => item.service_type_id === "ST001"
+        );
+        setTotalPrice(
+          newArr1.reduce((accumulator, item) => {
+            const price = parseFloat(item.money_has_paid);
+            return accumulator + price;
+          }, 0)
+        );
+        break;
+      case "2":
+        const newArr2 = bookingList.filter(
+          (item) => item.service_type_id === "ST002"
+        );
+        setTotalPrice(
+          newArr2.reduce((accumulator, item) => {
+            const price = parseFloat(item.money_has_paid);
+            return accumulator + price;
+          }, 0)
+        );
+        break;
+      case "3":
+        const newArr3 = bookingList.filter(
+          (item) => item.service_type_id === "ST003"
+        );
+        setTotalPrice(
+          newArr3.reduce((accumulator, item) => {
+            const price = parseFloat(item.money_has_paid);
+            return accumulator + price;
+          }, 0)
+        );
+        break;
+      default:
+        // Handle default case if needed
+        break;
+    }
+  };
+
+  useEffect(() => {
+    fetchBooking();
+    fetchServiceFormDetail();
+    // fetchBill();
+  }, []);
+
+  useEffect(() => {}, []);
+
+  // Định dạng tổng tiền theo tiền tệ Việt Nam
+  const formattedPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
   const data = [
     {
       name: "Page A",
@@ -70,23 +198,32 @@ function Home() {
   return (
     <main className="main-container">
       <div className="main-title">
-        <h3>DASHBOARD</h3>
+        <h1 style={{color: 'black'}}>DASHBOARD</h1>
       </div>
-
       <div className="main-cards">
         <div className="card">
           <div className="card-inner">
             <h3>SỐ LỊCH HẸN</h3>
             <BsFillArchiveFill className="card_icon" />
           </div>
-          <h1>300</h1>
+          <h1>{bookingList?.length}</h1>
         </div>
         <div className="card">
-          <div className="card-inner">
-            <h3>CATEGORIES</h3>
-            <BsFillGrid3X3GapFill className="card_icon" />
-          </div>
-          <h1>12</h1>
+          <Form.Item label="Doanh thu">
+            <Select
+              defaultValue="0"
+              onChange={(value) => handleBookingFilter(value)}
+            >
+              <Select.Option value="0" selected>
+                Tổng
+              </Select.Option>
+              <Select.Option value="1">Khám tổng quát</Select.Option>
+              <Select.Option value="2">SPA, làm đẹp</Select.Option>
+              <Select.Option value="3">Nội trú</Select.Option>
+            </Select>
+          </Form.Item>
+          <div className="card-inner"></div>
+          <h1>{formattedPrice(totalPrice)}</h1>
         </div>
         <div className="card">
           <div className="card-inner">
@@ -126,8 +263,7 @@ function Home() {
             <Bar dataKey="uv" fill="#82ca9d" />
           </BarChart>
         </ResponsiveContainer>
-
-        <ResponsiveContainer width="100%" height="100%">
+        {/* <ResponsiveContainer width="100%" height="100%">
           <LineChart
             width={500}
             height={300}
@@ -152,7 +288,30 @@ function Home() {
             />
             <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
           </LineChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer> */}
+        <div className={styles.rankingService}>
+          <h3>
+            <TrophyOutlined /> Top các dịch vụ được sử dụng
+          </h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Tên dịch vụ</th>
+                <th>Số lượng</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rankServiceList &&
+                rankServiceList.length > 0 &&
+                rankServiceList.map((service, index) => (
+                  <tr key={index}>
+                    <td>{service.note}</td>
+                    <td>{service.count}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   );

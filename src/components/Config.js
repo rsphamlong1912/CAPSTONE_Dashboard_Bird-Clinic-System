@@ -59,7 +59,7 @@ const Config = () => {
 
   const fetchDataSlotClinic = async () => {
     try {
-      const response = await API.get(`/slot_clinic/`);
+      const response = await API.get(`/slot-clinic/`);
       if (response.data) {
         console.log("Data slot clinic", response.data);
         const arrayAfterSort = response.data.sort(
@@ -75,7 +75,7 @@ const Config = () => {
   const updateSlotClinic = async () => {
     try {
       const response = await API.put(
-        `/slot_clinic/${timeSlot.slot_clinic_id}`,
+        `/slot-clinic/${timeSlot.slot_clinic_id}`,
         { time: timeSlot.time }
       );
       if (response.data) {
@@ -91,7 +91,7 @@ const Config = () => {
 
   const addSlotClinic = async () => {
     try {
-      const response = await API.post(`/slot_clinic/`, { time: newTime });
+      const response = await API.post(`/slot-clinic/`, { time: newTime });
       if (response.data) {
         console.log("Data add slot clinic", response.data);
         setModalOpen(null);
