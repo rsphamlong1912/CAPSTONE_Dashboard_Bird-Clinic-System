@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Config.module.scss";
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { IoBedOutline, IoTimeOutline, IoTimerOutline } from "react-icons/io5";
+import { IoBedOutline, IoTimeOutline, IoTimerOutline, IoCreateOutline  } from "react-icons/io5";
 import { Card, Button, Modal, Input, message } from "antd";
 import createAxios from "../services/axios";
 const API = createAxios();
@@ -120,12 +115,10 @@ const Config = () => {
           width: 400,
         }}
         actions={[
-          <SettingOutlined key="setting" />,
-          <EditOutlined
+          <IoCreateOutline  size={30}
             key="edit"
             onClick={() => setModalOpen("changeNumberBoarding")}
           />,
-          <EllipsisOutlined key="ellipsis" />,
         ]}
       >
         <div>
