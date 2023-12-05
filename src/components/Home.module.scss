@@ -1,0 +1,21 @@
+.rankingService {
+    h3 {
+      background-color: #32b768;
+      width: fit-content;
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: #fff;
+    }
+    color: black;
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+  
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 10px; /* Thay đổi giá trị padding ở đây để điều chỉnh khoảng cách */
+      text-align: left;
+    }
+  }

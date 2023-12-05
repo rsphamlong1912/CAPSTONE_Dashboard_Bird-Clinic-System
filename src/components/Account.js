@@ -131,13 +131,13 @@ const Account = () => {
     fetchDataAccount();
   }, []);
   return (
-  <div className={styles.container}>
+  <main className="main-container">
     <div className={styles.top}>
-    <h1>Danh sách tài khoản</h1>
+    <h1 style={{color: 'black'}}>DANH SÁCH TÀI KHOẢN</h1>
     <Button type="primary" value="large" icon={<BsPersonFillAdd  size={20} />} >Tạo tài khoản</Button>
     </div>
       <Table columns={columns} dataSource={dataVet} onChange={onChange} />
-  </div>
+  </main>
   )
 };
 
