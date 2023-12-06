@@ -47,14 +47,16 @@ const columns = [
     title: "Dịch vụ",
     dataIndex: "vet_service_catalogs",
     render: (serviceName) => {
-     return <span>
-     {serviceName.map((item, index) => (
-       <span key={index}>
-         {item.service_name}
-         <br />
-       </span>
-     ))}
-   </span>
+      return (
+        <span>
+          {serviceName.map((item, index) => (
+            <span key={index}>
+              {item.service_name}
+              <br />
+            </span>
+          ))}
+        </span>
+      );
     },
     width: "20%",
   },
@@ -315,7 +317,10 @@ const Vet = () => {
         formDataAccount.append("specialized", serviceType);
         formDataAccount.append("name", name);
         formDataAccount.append("status", 1);
-        formDataAccount.append("is_primary", serviceType === "ST002" || serviceType === "ST003" ? 1 : isPrimary);
+        formDataAccount.append(
+          "is_primary",
+          serviceType === "ST002" || serviceType === "ST003" ? 1 : isPrimary
+        );
         formDataAccount.append("service_type_id", serviceType);
         formDataAccount.append(
           "arr_service_id",
