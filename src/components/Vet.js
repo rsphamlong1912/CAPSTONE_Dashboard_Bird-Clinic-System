@@ -47,14 +47,16 @@ const columns = [
     title: "Dịch vụ",
     dataIndex: "vet_service_catalogs",
     render: (serviceName) => {
-     return <span>
-     {serviceName.map((item, index) => (
-       <span key={index}>
-         {item.service_name}
-         <br />
-       </span>
-     ))}
-   </span>
+      return (
+        <span>
+          {serviceName.map((item, index) => (
+            <span key={index}>
+              {item.service_name}
+              <br />
+            </span>
+          ))}
+        </span>
+      );
     },
     width: "20%",
   },
@@ -315,7 +317,10 @@ const Vet = () => {
         formDataAccount.append("specialized", serviceType);
         formDataAccount.append("name", name);
         formDataAccount.append("status", 1);
-        formDataAccount.append("is_primary", serviceType === "ST002" || serviceType === "ST003" ? 1 : isPrimary);
+        formDataAccount.append(
+          "is_primary",
+          serviceType === "ST002" || serviceType === "ST003" ? 1 : isPrimary
+        );
         formDataAccount.append("service_type_id", serviceType);
         formDataAccount.append(
           "arr_service_id",
@@ -413,16 +418,16 @@ const Vet = () => {
     <main className="main-container">
       <div className={styles.top}>
         <h1 style={{ color: "black" }}>DANH SÁCH BÁC SĨ</h1>
-        <div style={{backgroundColor: 'red', padding: 10}}>
-        <Button
-          type="primary"
-          value="large"
-          style={{}}
-          icon={<BsPersonFillAdd  />}
-          onClick={() => setOpen(true)}
-        >
-          Tạo tài khoản bác sĩ
-        </Button>
+        <div style={{ backgroundColor: "red", padding: 10 }}>
+          <Button
+            type="primary"
+            value="large"
+            style={{}}
+            icon={<BsPersonFillAdd />}
+            onClick={() => setOpen(true)}
+          >
+            Tạo tài khoản bác sĩ
+          </Button>
         </div>
         <Modal
           title="Tạo tài khoản bác sĩ"
