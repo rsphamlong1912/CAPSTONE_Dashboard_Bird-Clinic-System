@@ -134,7 +134,7 @@ const Account = () => {
   <main className="main-container">
     <div className={styles.top}>
     <h1 style={{color: 'black'}}>DANH SÁCH TÀI KHOẢN</h1>
-    <Button type="primary" value="large" icon={<BsPersonFillAdd  size={20} />} >Tạo tài khoản</Button>
+    <Button type="primary" size="large">Tạo tài khoản</Button>
     </div>
       <Table columns={columns} dataSource={dataVet} onChange={onChange} />
   </main>
