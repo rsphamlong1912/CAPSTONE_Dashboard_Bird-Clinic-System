@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Button, Flex, Form, Input, Select } from "antd";
+import { Button, Flex, Form, Input, Select, Upload } from "antd";
 import { Table } from "antd";
 import styles from "./Service.module.scss";
 import { EditFilled } from "@ant-design/icons";
 import { BsPersonFillAdd } from "react-icons/bs";
 import { Tabs, Modal, message } from "antd";
+import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import createAxios from "../services/axios";
 const API = createAxios();
@@ -17,7 +18,7 @@ const columns = [
     width: "10%",
   },
   {
-    title: "ID Dịch vụ",
+    title: "ID Gói Dịch vụ",
     dataIndex: "service_package_id",
     filters: [
       {
@@ -92,6 +93,66 @@ const columns = [
     width: "10%",
   },
 ];
+const columnsService = [
+  {
+    title: "STT",
+    dataIndex: "index",
+    sorter: (a, b) => a.index - b.index,
+    width: "10%",
+  },
+  {
+    title: "ID Dịch vụ",
+    dataIndex: "service_id",
+    filters: [
+      {
+        text: "Joe",
+        value: "Joe",
+      },
+      {
+        text: "Category 1",
+        value: "Category 1",
+      },
+      {
+        text: "Category 2",
+        value: "Category 2",
+      },
+    ],
+    filterMode: "tree",
+    filterSearch: true,
+    onFilter: (value, record) => record.name.startsWith(value),
+    width: "10%",
+  },
+  {
+    title: "Tên dịch vụ",
+    dataIndex: "name",
+    sorter: (a, b) => a.age - b.age,
+    width: "25%",
+  },
+  {
+    title: "Mô tả",
+    dataIndex: "description",
+    width: "20%",
+  },
+  {
+    title: "Trạng thái",
+    dataIndex: "status",
+    render: (accountData) => {
+      return accountData ? accountData.status : "";
+    },
+    width: "10%",
+    sorter: (a, b) => {
+      if (a.account && b.account) {
+        return a.account.status.localeCompare(b.account.status);
+      }
+      return 0;
+    },
+  },
+  {
+    title: "Hành động",
+    dataIndex: "action",
+    width: "10%",
+  },
+];
 
 const columnsBirdBreed = [
   {
@@ -129,12 +190,17 @@ const Service = () => {
   const [openModalCreateService, setOpenModalCreateService] = useState();
   const [openModalCreateServicePackage, setOpenModalCreateServicePackage] =
     useState();
+  const [loading, setLoading] = useState(false);
+
   const [birdSizeList, setBirdSizeList] = useState();
   const [serviceTypeList, setServiceTypeList] = useState([]);
   const [serviceSelected, setServiceSelected] = useState();
   const [servicePackageList, setServicePackageList] = useState([]);
   const [serviceList, setServiceList] = useState([]);
   const [birdBreedList, setBirdBreedList] = useState([]);
+
+  const [imageUrl, setImageUrl] = useState();
+  const [imageDoctor, setImageService] = useState([]);
 
   //tab 1
   const [dataService, setDataService] = useState({
@@ -291,7 +357,17 @@ const Service = () => {
       const response = await API.get(`/service/`);
       if (response.data) {
         console.log("Service ne:", response.data);
-        setServiceList(response.data);
+        const dataAfterMap = response.data.map((item, index) => ({
+          key: index,
+          ...item,
+          index: index + 1,
+          action: (
+            <Button type="default" icon={<EditFilled />} onClick={() => {}}>
+              Chỉnh sửa
+            </Button>
+          ),
+        }));
+        setServiceList(dataAfterMap);
       }
     } catch (error) {
       console.log(error);
@@ -299,7 +375,9 @@ const Service = () => {
   };
   const fetchServicePackage = async () => {
     try {
-      const response = await API.get(`/service-package/?service_type_id=${tab}`);
+      const response = await API.get(
+        `/service-package/?service_type_id=${tab}`
+      );
       if (response.data) {
         console.log("Data service package", response.data);
         const filterArray = response.data.filter(
@@ -328,6 +406,61 @@ const Service = () => {
     }
   };
 
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Tải lên
+      </div>
+    </div>
+  );
+
+  const getBase64 = (img, callback) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => callback(reader.result));
+    reader.readAsDataURL(img);
+  };
+
+  const handleChange = (info) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      message.success("Tải lên file ảnh thành công!");
+      getBase64(info.file.originFileObj, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+      });
+    }
+  };
+
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG file!");
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error("Image must smaller than 2MB!");
+    }
+    if (isJpgOrPng && isLt2M) setImageService([file]);
+
+    return isJpgOrPng && isLt2M;
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
   useEffect(() => {
     fetchServiceType();
     fetchBirdBreed();
@@ -341,7 +474,7 @@ const Service = () => {
 
   return (
     <main className="main-container">
-      <h1 style={{color: 'black'}}>DANH SÁCH GÓI DỊCH VỤ</h1>
+      <h1 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h1>
       <Button
         type="primary"
         value="large"
@@ -350,6 +483,13 @@ const Service = () => {
       >
         Tạo dịch vụ mới
       </Button>
+      <Table
+        columns={columnsService}
+        dataSource={serviceList}
+        onChange={onChange}
+      />
+      <h1 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h1>
+
       <Button
         type="primary"
         value="large"
@@ -442,6 +582,34 @@ const Service = () => {
               name="description"
               value={dataServiceNew.description}
             />
+          </Form.Item>
+          <Form.Item
+            label="Hình ảnh"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+          >
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className="avatar-uploader"
+              showUploadList={false}
+              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+              beforeUpload={beforeUpload}
+              imageDoctor
+              onChange={handleChange}
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="avatar"
+                  style={{
+                    width: "100%",
+                  }}
+                />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
