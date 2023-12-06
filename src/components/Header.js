@@ -1,7 +1,7 @@
 import React from "react";
 // import { styles } from "./Header.module.scss";
 import { BsJustify } from "react-icons/bs";
-import { Button, Input } from "antd";
+import { Button, Input, Avatar } from "antd";
 const { Search } = Input;
 
 function Header({ OpenSidebar }) {
@@ -20,7 +20,11 @@ function Header({ OpenSidebar }) {
         />
       </div>
       <div className="header-right">
-        <Button size="large" type="default">Admin</Button>
+      <Button style={{marginRight: 10}} size="large" type="primary">Khám tổng quát</Button>
+
+        <Button style={{marginRight: 10}} size="large" type="default">Bác sĩ Phạm Ngọc Long</Button>
+        <Avatar size={50} src="https://taimuihongsg.com/wp-content/uploads/2019/01/Trinh-Tan-Lap_taimuihongsg.jpg" />
+
       </div>
     </header>
   );
