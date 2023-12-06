@@ -418,17 +418,15 @@ const Vet = () => {
     <main className="main-container">
       <div className={styles.top}>
         <h1 style={{ color: "black" }}>DANH SÁCH BÁC SĨ</h1>
-        <div style={{ backgroundColor: "red", padding: 10 }}>
-          <Button
-            type="primary"
-            value="large"
-            style={{}}
-            icon={<BsPersonFillAdd />}
-            onClick={() => setOpen(true)}
-          >
-            Tạo tài khoản bác sĩ
-          </Button>
-        </div>
+        <Button
+          type="primary"
+          size="large"
+          className="custom-large-button"
+          // icon={<BsPersonFillAdd size={25} />}
+          onClick={() => setOpen(true)}
+        >
+          Tạo tài khoản bác sĩ
+        </Button>
         <Modal
           title="Tạo tài khoản bác sĩ"
           centered
