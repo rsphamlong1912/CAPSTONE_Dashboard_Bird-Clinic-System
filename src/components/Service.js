@@ -3,7 +3,7 @@ import { Button, Flex, Form, Input, Select, Upload } from "antd";
 import { Table } from "antd";
 import styles from "./Service.module.scss";
 import { EditFilled } from "@ant-design/icons";
-import { BsPersonFillAdd } from "react-icons/bs";
+import { BsCheckLg, BsPersonFillAdd } from "react-icons/bs";
 import { Tabs, Modal, message } from "antd";
 import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 
@@ -167,8 +167,15 @@ const columnsBirdBreed = [
     width: "30%",
   },
   {
-    title: "Kích thước",
+    title: "Size ID",
     dataIndex: "bird_size_id",
+    sorter: (a, b) => a.bird_size_id - b.bird_size_id,
+    width: "30%",
+  },
+  {
+    title: "Kích thước",
+    dataIndex: "bird_size",
+    render: (bird_size) => <div>{bird_size.size}</div>,
     sorter: (a, b) => a.bird_size_id - b.bird_size_id,
     width: "30%",
   },
@@ -185,7 +192,9 @@ const columnsBirdBreed = [
 
 const Service = () => {
   const [tab, setTab] = useState("ST001");
+  const [openDetailBirdBreed, setOpenDetailBirdBreed] = useState();
   const [openDetailService, setOpenDetailService] = useState();
+  const [openDetailServicePackage, setOpenDetailServicePackage] = useState();
   const [openModalCreateBreedBird, setOpenModalCreateBreedBird] = useState();
   const [openModalCreateService, setOpenModalCreateService] = useState();
   const [openModalCreateServicePackage, setOpenModalCreateServicePackage] =
@@ -195,21 +204,31 @@ const Service = () => {
   const [birdSizeList, setBirdSizeList] = useState();
   const [serviceTypeList, setServiceTypeList] = useState([]);
   const [serviceSelected, setServiceSelected] = useState();
+  const [servicePackageSelected, setServicePackageSelected] = useState();
   const [servicePackageList, setServicePackageList] = useState([]);
   const [serviceList, setServiceList] = useState([]);
   const [birdBreedList, setBirdBreedList] = useState([]);
+  const [birdBreedSelected, setBirdBreedSelected] = useState([]);
 
   const [imageUrl, setImageUrl] = useState();
-  const [imageDoctor, setImageService] = useState([]);
+  const [imageService, setImageService] = useState([]);
 
   //tab 1
   const [dataService, setDataService] = useState({
+    name: "",
+    description: "",
+  });
+  const [dataServicePackage, setDataServicePackage] = useState({
     package_name: "",
     price: "",
     description: "",
   });
 
   const [dataBreed, setDataBreed] = useState({
+    breed: "",
+    bird_size_id: "",
+  });
+  const [dataBreedNew, setDataBreedNew] = useState({
     breed: "",
     bird_size_id: "",
   });
@@ -226,7 +245,7 @@ const Service = () => {
     description: "",
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange1 = (e) => {
     const { name, value } = e.target;
 
     setDataService((dataService) => ({
@@ -234,9 +253,22 @@ const Service = () => {
       [name]: value,
     }));
   };
+  const handleInputChange2 = (e) => {
+    const { name, value } = e.target;
+
+    setDataServicePackage((dataServicePackage) => ({
+      ...dataServicePackage,
+      [name]: value,
+    }));
+  };
+
   const handleInputBreedChange = (name, value) => {
     console.log("name", name, value);
     setDataBreed((prevDataBreed) => ({
+      ...prevDataBreed,
+      [name]: value,
+    }));
+    setDataBreedNew((prevDataBreed) => ({
       ...prevDataBreed,
       [name]: value,
     }));
@@ -261,10 +293,27 @@ const Service = () => {
     setTab(key);
   };
 
+  const onHandleBirdBreed = (item) => {
+    setOpenDetailBirdBreed(true);
+    setBirdBreedSelected(item);
+    setDataBreed({
+      breed: item.breed,
+      bird_size_id: item.bird_size_id,
+    });
+    console.log("item", item);
+  };
   const onHandleService = (item) => {
     setOpenDetailService(true);
     setServiceSelected(item);
     setDataService({
+      name: item.name,
+      description: item.description,
+    });
+  };
+  const onHandleServicePackage = (item) => {
+    setOpenDetailServicePackage(true);
+    setServicePackageSelected(item);
+    setDataServicePackage({
       package_name: item.package_name,
       price: item.price,
       description: item.description,
@@ -283,14 +332,53 @@ const Service = () => {
     setOpenModalCreateServicePackage(true);
   };
 
-  const updateService = async () => {
+  const updateBreed = async () => {
+    console.log("breed", dataBreed.breed);
+    console.log("birdsizeid", dataBreed.bird_size_id);
     try {
       const response = await API.put(
-        `/service-package/${serviceSelected.service_package_id}`,
+        `/bird-breed/${birdBreedSelected.breed_id}`,
         {
-          name: dataService.package_name,
-          price: dataService.price,
-          description: dataService.description,
+          breed: dataBreed.breed,
+          bird_size_id: dataBreed.bird_size_id,
+        }
+      );
+      if (response) {
+        console.log("Change thanh cong");
+        message.success(`Update service thành công.`);
+        fetchBirdBreed();
+        // fetchServiceType();
+      }
+    } catch (error) {
+      console.log(error);
+      message.error(`Update service thất bại.`);
+    }
+  };
+  const updateService = async () => {
+    try {
+      const response = await API.put(`/service/${serviceSelected.service_id}`, {
+        name: dataService.name,
+        description: dataService.description,
+      });
+      if (response) {
+        console.log("Change thanh cong");
+        message.success(`Update service thành công.`);
+        fetchService();
+        // fetchServiceType();
+      }
+    } catch (error) {
+      console.log(error);
+      message.error(`Update service thất bại.`);
+    }
+  };
+  const updateServicePackage = async () => {
+    try {
+      const response = await API.put(
+        `/service-package/${servicePackageSelected.service_package_id}`,
+        {
+          package_name: dataServicePackage.package_name,
+          price: dataServicePackage.price,
+          description: dataServicePackage.description,
         }
       );
       if (response) {
@@ -315,7 +403,13 @@ const Service = () => {
           ...item,
           index: index + 1,
           action: (
-            <Button type="default" icon={<EditFilled />} onClick={() => {}}>
+            <Button
+              type="default"
+              icon={<EditFilled />}
+              onClick={() => {
+                onHandleBirdBreed(item);
+              }}
+            >
               Chỉnh sửa
             </Button>
           ),
@@ -362,7 +456,13 @@ const Service = () => {
           ...item,
           index: index + 1,
           action: (
-            <Button type="default" icon={<EditFilled />} onClick={() => {}}>
+            <Button
+              type="default"
+              icon={<EditFilled />}
+              onClick={() => {
+                onHandleService(item);
+              }}
+            >
               Chỉnh sửa
             </Button>
           ),
@@ -393,7 +493,7 @@ const Service = () => {
             <Button
               type="primary"
               icon={<EditFilled />}
-              onClick={() => onHandleService(item)}
+              onClick={() => onHandleServicePackage(item)}
             >
               Chỉnh sửa
             </Button>
@@ -474,7 +574,7 @@ const Service = () => {
 
   return (
     <main className="main-container">
-      <h1 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h1>
+      <h2 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h2>
       <Button
         type="primary"
         value="large"
@@ -483,12 +583,51 @@ const Service = () => {
       >
         Tạo dịch vụ mới
       </Button>
+      {/* MODAL CHINH SUA DICH VU  */}
+      <Modal
+        title="Chỉnh sửa dịch vụ"
+        centered
+        open={openDetailService}
+        onOk={() => {
+          updateService();
+          setOpenDetailService(false);
+        }}
+        onCancel={() => setOpenDetailService(false)}
+        width={500}
+      >
+        <table className={styles.table}>
+          <tbody>
+            <tr>
+              <th>Tên dịch vụ</th>
+              <td>
+                <input
+                  type="text"
+                  name="name"
+                  value={dataService.name}
+                  onChange={handleInputChange1}
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>Mô tả</th>
+              <td>
+                <input
+                  type="text"
+                  name="description"
+                  value={dataService.description}
+                  onChange={handleInputChange1}
+                />{" "}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </Modal>
       <Table
         columns={columnsService}
         dataSource={serviceList}
         onChange={onChange}
       />
-      <h1 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h1>
+      <h2 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h2>
 
       <Button
         type="primary"
@@ -513,16 +652,49 @@ const Service = () => {
             key="submit"
             type="primary"
             onClick={async () => {
+              console.log("service_type_id", dataServiceNew.service_type_id);
+              console.log("name", dataServiceNew.name);
+              console.log("desc", dataServiceNew.description);
+
               try {
-                const response = await API.post(`/service`, {
+                const responseCreateService = await API.post(`/service/`, {
                   service_type_id: dataServiceNew.service_type_id,
                   name: dataServiceNew.name,
                   description: dataServiceNew.description,
                   status: 1,
                 });
-                if (response) {
-                  console.log("Thêm dv thành công");
-                  message.success(`Thêm dv thành công.`);
+                if (responseCreateService) {
+                  console.log(
+                    "Create service success ?",
+                    responseCreateService.data
+                  );
+                  const formDataService = new FormData();
+                  formDataService.append("image", imageService[0]);
+                  formDataService.append(
+                    "service_type_id",
+                    dataServiceNew.service_type_id
+                  );
+                  formDataService.append("name", dataServiceNew.name);
+                  formDataService.append(
+                    "description",
+                    dataServiceNew.description
+                  );
+                  formDataService.append("status", "1");
+
+                  const responseCreate = await API.postWithHeaders(
+                    `/service/`,
+                    formDataService,
+                    {
+                      "Content-Type": "multipart/form-data",
+                    }
+                  );
+                  if (responseCreate.data) {
+                    console.log("Thêm dv thành công");
+                    message.success(`Thêm dv thành công.`);
+                    fetchService();
+                  } else {
+                    message.error("Tạo tài khoản bác sĩ thất bại!");
+                  }
                 }
               } catch (error) {
                 console.log(error);
@@ -733,15 +905,17 @@ const Service = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* UPDATE SERVICE PACKAGE  */}
       <Modal
-        title="Thông tin chi tiết dịch vụ"
+        title="Chỉnh sửa gói dịch vụ"
         centered
-        open={openDetailService}
+        open={openDetailServicePackage}
         onOk={() => {
-          updateService();
-          setOpenDetailService(false);
+          updateServicePackage();
+          setOpenDetailServicePackage(false);
         }}
-        onCancel={() => setOpenDetailService(false)}
+        onCancel={() => setOpenDetailServicePackage(false)}
         width={500}
       >
         <table className={styles.table}>
@@ -752,8 +926,8 @@ const Service = () => {
                 <input
                   type="text"
                   name="package_name"
-                  value={dataService.package_name}
-                  onChange={handleInputChange}
+                  value={dataServicePackage.package_name}
+                  onChange={handleInputChange2}
                 />
               </td>
             </tr>
@@ -763,8 +937,8 @@ const Service = () => {
                 <input
                   type="text"
                   name="price"
-                  value={dataService.price}
-                  onChange={handleInputChange}
+                  value={dataServicePackage.price}
+                  onChange={handleInputChange2}
                 />
               </td>
             </tr>
@@ -774,8 +948,8 @@ const Service = () => {
                 <input
                   type="text"
                   name="description"
-                  value={dataService.description || "Trống"}
-                  onChange={handleInputChange}
+                  value={dataServicePackage.description}
+                  onChange={handleInputChange2}
                 />{" "}
               </td>
             </tr>
@@ -797,7 +971,7 @@ const Service = () => {
         dataSource={servicePackageList}
         onChange={onChange}
       />
-      <h1>Danh sách giống chim</h1>
+      <h2 style={{ color: "black" }}>DANH SÁCH GIỐNG CHIM</h2>
       <Button
         type="primary"
         value="large"
@@ -806,6 +980,43 @@ const Service = () => {
       >
         Tạo giống chim mới
       </Button>
+      <Modal
+        title="Chỉnh sửa giống chim"
+        centered
+        open={openDetailBirdBreed}
+        onOk={() => {
+          updateBreed();
+          setOpenDetailBirdBreed(false);
+        }}
+        onCancel={() => setOpenDetailBirdBreed(false)}
+        width={500}
+      >
+        <Form.Item label="Tên giống">
+          <Input
+            onChange={(e) => handleInputBreedChange("breed", e.target.value)}
+            name="breed"
+            value={dataBreed.breed}
+          />
+        </Form.Item>
+        <Form.Item label="Size chim">
+          <Select
+            onChange={(value) => handleInputBreedChange("bird_size_id", value)}
+            name="bird_size_id"
+            value={dataBreed.bird_size_id}
+          >
+            {birdSizeList &&
+              birdSizeList.length > 0 &&
+              birdSizeList.map((item, index) => (
+                <Select.Option
+                  value={item.bird_size_id}
+                  key={item.bird_size_id}
+                >
+                  {item.size}
+                </Select.Option>
+              ))}
+          </Select>
+        </Form.Item>
+      </Modal>
       <Modal
         title="Tạo giống chim mới"
         centered
@@ -823,12 +1034,13 @@ const Service = () => {
             onClick={async () => {
               try {
                 const response = await API.post(`/bird-breed/`, {
-                  breed: dataBreed.breed,
-                  bird_size_id: dataBreed.bird_size_id,
+                  breed: dataBreedNew.breed,
+                  bird_size_id: dataBreedNew.bird_size_id,
                 });
                 if (response) {
                   console.log("Thêm giống thành công");
                   message.success(`Thêm giống thành công.`);
+                  fetchBirdBreed();
                 }
               } catch (error) {
                 console.log(error);
@@ -857,7 +1069,7 @@ const Service = () => {
             <Input
               onChange={(e) => handleInputBreedChange("breed", e.target.value)}
               name="breed"
-              value={dataBreed.breed}
+              value={dataBreedNew.breed}
             />
           </Form.Item>
           <Form.Item label="Size chim">
@@ -866,7 +1078,7 @@ const Service = () => {
                 handleInputBreedChange("bird_size_id", value)
               }
               name="bird_size_id"
-              value={dataBreed.bird_size_id}
+              value={dataBreedNew.bird_size_id}
             >
               {birdSizeList &&
                 birdSizeList.length > 0 &&
