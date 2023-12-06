@@ -20,25 +20,159 @@ import {
   Line,
 } from "recharts";
 import createAxios from "../services/axios";
-import { Form, Select } from "antd";
+import { Button, DatePicker, Form, Select, Table } from "antd";
+import { EditFilled } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import styles from "./Home.module.scss";
 const API = createAxios();
 
 function Home() {
+  const [totalBooking, setTotalBooking] = useState();
   const [bookingList, setBookingList] = useState();
   const [serviceFormDetailList, setServiceFormDetailList] = useState();
+  const [datePicked, setDatePicked] = useState();
   const [rankServiceList, setRankServiceList] = useState();
 
   const [totalPrice, setTotalPrice] = useState(0);
 
+  const columnsBooking = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      sorter: (a, b) => a.index - b.index,
+      width: "5%",
+    },
+    {
+      title: "Khách hàng",
+      dataIndex: "customer_name",
+      filters: [
+        {
+          text: "Joe",
+          value: "Joe",
+        },
+        {
+          text: "Category 1",
+          value: "Category 1",
+        },
+        {
+          text: "Category 2",
+          value: "Category 2",
+        },
+      ],
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record.name.startsWith(value),
+      width: "10%",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "bird",
+      render: (bird) => {
+        return bird ? bird.customer.phone : "";
+      },
+      sorter: (a, b) => a.age - b.age,
+      width: "10%",
+    },
+    {
+      title: "Tên dịch vụ",
+      dataIndex: "service_type",
+      sorter: (a, b) => a.age - b.age,
+      width: "15%",
+    },
+    {
+      title: "Chim",
+      dataIndex: "bird",
+      render: (bird) => {
+        return bird ? bird.name : "";
+      },
+      sorter: (a, b) => a.age - b.age,
+      width: "10%",
+    },
+    {
+      title: "Giờ đặt",
+      dataIndex: "estimate_time",
+      sorter: (a, b) => a.age - b.age,
+      width: "5%",
+    },
+    {
+      title: "Giờ checkin",
+      dataIndex: "checkin_time",
+      sorter: (a, b) => a.age - b.age,
+      width: "5%",
+    },
+
+    // {
+    //   title: "Giá tiền",
+    //   dataIndex: "price",
+    //   filters: [
+    //     {
+    //       text: "London",
+    //       value: "London",
+    //     },
+    //     {
+    //       text: "New York",
+    //       value: "New York",
+    //     },
+    //   ],
+    //   onFilter: (value, record) => record.address.startsWith(value),
+    //   filterSearch: true,
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Mô tả",
+    //   dataIndex: "description",
+    //   width: "20%",
+    // },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      // render: (accountData) => {
+      //   return accountData ? accountData.status : "";
+      // },
+      width: "10%",
+      sorter: (a, b) => {
+        if (a.account && b.account) {
+          return a.account.status.localeCompare(b.account.status);
+        }
+        return 0;
+      },
+    },
+    // {
+    //   title: "Hành động",
+    //   dataIndex: "action",
+    //   width: "10%",
+    // },
+  ];
+
+  const onChangeDate = (date, dateString) => {
+    console.log("Date String: ", dateString);
+    setDatePicked(dateString);
+  };
+
   const fetchBooking = async () => {
     try {
-      const response = await API.get(`/booking`);
-      if (response.data) {
-        console.log("Data booking", response.data);
-        setBookingList(response.data);
+      let responseBooking;
+      if (datePicked) {
+        responseBooking = await API.get(`/booking/?arrival_date=${datePicked}`);
+      } else {
+        responseBooking = await API.get(`/booking`);
+      }
+      if (responseBooking.data) {
+        console.log("Data booking", responseBooking.data);
+        const dataAfterMap = responseBooking.data.map((item, index) => ({
+          key: index,
+          ...item,
+          index: index + 1,
+          action: (
+            <Button type="default" icon={<EditFilled />} onClick={() => {}}>
+              Chỉnh sửa
+            </Button>
+          ),
+        }));
+        setTotalBooking(responseBooking.data.length);
+        setBookingList(dataAfterMap);
         setTotalPrice(
-          response.data.reduce((accumulator, item) => {
+          responseBooking.data.reduce((accumulator, item) => {
             const price = parseFloat(item.money_has_paid);
             return accumulator + price;
           }, 0)
@@ -195,10 +329,14 @@ function Home() {
     },
   ];
 
+  useEffect(() => {
+    fetchBooking();
+  }, [datePicked]);
+
   return (
     <main className="main-container">
       <div className="main-title">
-        <h1 style={{color: 'black'}}>DASHBOARD</h1>
+        <h1 style={{ color: "black" }}>DASHBOARD</h1>
       </div>
       <div className="main-cards">
         <div className="card">
@@ -206,7 +344,7 @@ function Home() {
             <h3>SỐ LỊCH HẸN</h3>
             <BsFillArchiveFill className="card_icon" />
           </div>
-          <h1>{bookingList?.length}</h1>
+          <h1>{totalBooking}</h1>
         </div>
         <div className="card">
           <Form.Item label="Doanh thu">
@@ -312,6 +450,19 @@ function Home() {
             </tbody>
           </table>
         </div>
+      </div>
+      <div className="bookingList">
+        <h1 style={{ color: "black" }}>DANH SÁCH LỊCH KHÁM</h1>
+        <DatePicker
+          size="large"
+          onChange={onChangeDate}
+          placeholder="Chọn ngày"
+        />
+        <Table
+          columns={columnsBooking}
+          dataSource={bookingList}
+          // onChange={onChange}
+        />
       </div>
     </main>
   );

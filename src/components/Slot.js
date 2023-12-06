@@ -1,20 +1,19 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Slot.module.scss";
 import { InboxOutlined } from "@ant-design/icons";
 import { message, Upload, Button, Tabs, Card, DatePicker, Avatar, Modal, Col, Row, Select  } from "antd";
 
+
 import createAxios from "../services/axios";
 const API = createAxios();
 
-const { Meta } = Card
+const { Meta } = Card;
 const { Dragger } = Upload;
 const gridStyle = {
   width: "25%",
 };
 
 const Slot = () => {
-
-
   const [fileList, setFileList] = useState([]);
   const [dataVet, setDataVet] = useState([]);
   const [datePicked, setDatePicked] = useState();
@@ -59,28 +58,34 @@ const Slot = () => {
       const formData = new FormData();
       formData.append("excelFile", fileList[0]);
 
-      const response = await
-        API.postWithHeaders(`/time-slot-clinic/with-file`, formData, {
+      const response = await API.postWithHeaders(
+        `/time-slot-clinic/with-file`,
+        formData,
+        {
           "Content-Type": "multipart/form-data",
-        })   
+        }
+      );
 
-      if(response) {
+      if (response) {
         console.log(response);
         setFileList([]);
         message.success(`Cập nhật lịch khám cho bác sĩ thành công.`);
       }
-
     } catch (error) {
       console.log(error);
       message.error(`Cập nhật lịch phòng khám thất bại.`);
     }
-  }
+  };
+
+
 
 
   const fetchDataSlotByVetAndDate = async () => {
-    setDataVetSlot([])
+    setDataVetSlot([]);
     try {
-      const response = await API.get(`/veterinarian-slot-detail/?veterinarian_id=${doctorPicked.veterinarian_id}&date=${datePicked}`);
+      const response = await API.get(
+        `/veterinarian-slot-detail/?veterinarian_id=${doctorPicked.veterinarian_id}&date=${datePicked}`
+      );
       if (response.data) {
         console.log("Data slot by Vet and Date", response.data);
         setDataVetSlot(response.data);
@@ -91,7 +96,7 @@ const Slot = () => {
   };
 
   const fetchDataVetByDate = async () => {
-    setDataVet([])
+    setDataVet([]);
     try {
       const response = await API.get(`/vet/?date=${datePicked}`);
       if (response.data) {
@@ -160,25 +165,27 @@ const Slot = () => {
       const formData = new FormData();
       formData.append("excelFile", fileList[0]);
 
-      const response = await
-        API.postWithHeaders(`/veterinarian-slot-detail/with-file`, formData, {
+      const response = await API.postWithHeaders(
+        `/veterinarian-slot-detail/with-file`,
+        formData,
+        {
           "Content-Type": "multipart/form-data",
-        })   
+        }
+      );
 
-      if(response) {
+      if (response) {
         console.log(response);
         setFileList([]);
         message.success(`Cập nhật lịch phòng khám thành công.`);
       }
-
     } catch (error) {
       console.log(error);
       message.error(`Cập nhật lịch khám bác sĩ thất bại.`);
     }
-  }
+  };
 
   const onChange = (key) => {
-    setFileList([])
+    setFileList([]);
   };
 
   useEffect(() => {
@@ -198,7 +205,7 @@ const Slot = () => {
 
   const onChangeDate = (date, dateString) => {
     console.log("Date String: ", dateString);
-    setDatePicked(dateString)
+    setDatePicked(dateString);
   };
 
   useEffect(() => {
@@ -309,75 +316,74 @@ const Slot = () => {
     </>,
     },
     {
-      key: '2',
-      label: 'Cập nhật lịch phòng khám',
-      children:  <>
-      <Dragger {...props} style={{ height: "30%" }}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Chọn hoặc kéo thả file lịch phòng khám vào đây để Update
-        </p>
-        <p className="ant-upload-hint">
-          Support for a single or bulk upload. Strictly prohibited
-          from uploading company data or other banned files.
-        </p>
-      </Dragger>
-      <Button
-        type="primary"
-        size="large"
-        style={{
-          marginTop: 16,
-          backgroundColor: '#32b768',
-        }}
-        onClick={()=>handleUploadFileTimeSlot()}
-      >
-        Xác nhận
-      </Button>
-      </>,
+      key: "2",
+      label: "Cập nhật lịch phòng khám",
+      children: (
+        <>
+          <Dragger {...props} style={{ height: "30%" }}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Chọn hoặc kéo thả file lịch phòng khám vào đây để Update
+            </p>
+            <p className="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibited from
+              uploading company data or other banned files.
+            </p>
+          </Dragger>
+          <Button
+            type="primary"
+            size="large"
+            style={{
+              marginTop: 16,
+              backgroundColor: "#32b768",
+            }}
+            onClick={() => handleUploadFileTimeSlot()}
+          >
+            Xác nhận
+          </Button>
+        </>
+      ),
     },
     {
-      key: '3',
-      label: 'Cập nhật lịch khám bác sĩ',
-      children:  <>
-      <Dragger {...props} style={{ height: "30%" }}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Chọn hoặc kéo thả file lịch khám bác sĩ vào đây để Update
-        </p>
-        <p className="ant-upload-hint">
-          Support for a single or bulk upload. Strictly prohibited
-          from uploading company data or other banned files.
-        </p>
-      </Dragger>
-      <Button
-        type="primary"
-        size="large"
-        style={{
-          marginTop: 16,
-          backgroundColor: '#32b768',
-        }}
-        onClick={()=>handleUploadFileVetSlot()}
-      >
-        Xác nhận
-      </Button>
-      </>,
+      key: "3",
+      label: "Cập nhật lịch khám bác sĩ",
+      children: (
+        <>
+          <Dragger {...props} style={{ height: "30%" }}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Chọn hoặc kéo thả file lịch khám bác sĩ vào đây để Update
+            </p>
+            <p className="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibited from
+              uploading company data or other banned files.
+            </p>
+          </Dragger>
+          <Button
+            type="primary"
+            size="large"
+            style={{
+              marginTop: 16,
+              backgroundColor: "#32b768",
+            }}
+            onClick={() => handleUploadFileVetSlot()}
+          >
+            Xác nhận
+          </Button>
+        </>
+      ),
     },
   ];
 
-
   return (
     <main className="main-container">
-      <h1 style={{color: '#111', marginBottom: 30}}>LỊCH KHÁM</h1>
+      <h1 style={{ color: "#111", marginBottom: 30 }}>LỊCH KHÁM</h1>
       <div>
-        <Tabs
-          onChange={onChange}
-          type="card"
-          items={itemTabs}
-        />
+        <Tabs onChange={onChange} type="card" items={itemTabs} />
       </div>
     </main>
   );
