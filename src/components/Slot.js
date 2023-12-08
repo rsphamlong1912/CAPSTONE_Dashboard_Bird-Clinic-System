@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Slot.module.scss";
 import { InboxOutlined } from "@ant-design/icons";
-import { message, Upload, Button, Tabs, Card, DatePicker, Avatar, Modal, Col, Row, Select  } from "antd";
+import { message, Upload, Button, Tabs, Card, DatePicker, Avatar, Modal, Col, Row, Select, Popconfirm} from "antd";
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 
 import createAxios from "../services/axios";
@@ -24,6 +25,11 @@ const Slot = () => {
   const [timeSlotPicked, setTimeSlotPicked] = useState([]);
   const [vetSlotDetail, setVetSlotDetail] = useState();
   const [modalDeleteVetSlotDetail, setModalDeleteVetSlotDetail] = useState(false);
+  const [dataSlotClinic, setDataSlotClinic] = useState([]);
+  const [modalAddTimeSlotClinic, setModalAddTimeSlotClinic] = useState(false);
+  const [modalAddVet, setModalAddVet] = useState(false);
+  const [dataVetAdd, setDataVetAdd] = useState([]);
+
 
   const props = {
     name: "file",
@@ -88,7 +94,8 @@ const Slot = () => {
       );
       if (response.data) {
         console.log("Data slot by Vet and Date", response.data);
-        setDataVetSlot(response.data);
+        const sortArray = response.data.sort((a,b)=> a.time_slot_clinic.slot_clinic.time.localeCompare(b.time_slot_clinic.slot_clinic.time))
+        setDataVetSlot(sortArray);
       }
     } catch (error) {
       console.log(error);
@@ -113,11 +120,39 @@ const Slot = () => {
       const response = await API.get(`/time-slot-clinic/?date=${datePicked}`);
       if (response.data) {
         console.log("Data time slot clinic by Date", response.data);
-        const newArray = response.data.map((item,index)=>({
+        const sortData = response.data.sort((a,b)=>  a.slot_clinic.time.localeCompare(b.slot_clinic.time));
+        const newArray = sortData.map((item,index)=>({
           label: item.slot_clinic.time,
           value: item.time_slot_clinic_id
         }))
         setDataTimeSlotClinic(newArray);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchDataSlotClinic = async () => {
+    try {
+      const response = await API.get(`/slot-clinic/`);
+      if (response.data) {
+        console.log("Data slot clinic", response.data);
+        const arrayAfterSort = response.data.sort(
+          (a, b) => a.slot_clinic_id - b.slot_clinic_id
+        );
+        setDataSlotClinic(arrayAfterSort);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchDataVet = async () => {
+    try {
+      const response = await API.get(`/vet/`);
+      if (response.data) {
+        console.log("Data vet", response.data);
+        setDataVetAdd( response.data);
       }
     } catch (error) {
       console.log(error);
@@ -184,6 +219,22 @@ const Slot = () => {
     }
   };
 
+  const createNewTimeSlotClinic = async (id) => {
+    try {
+      const response = await API.post(`/time-slot-clinic/`, {
+        slot_clinic_id: id,
+        date: datePicked
+      });
+      if (response.data) {
+        fetchDataTimeSlotClinic();
+        message.success("Thêm slot mới cho ngày thành công.")
+      }
+    } catch (error) {
+      console.log(error);
+      message.error("Slot đã có sẵn trong ngày.")
+    }
+  };
+
   const onChange = (key) => {
     setFileList([]);
   };
@@ -218,7 +269,16 @@ const Slot = () => {
       label: 'Lịch khám',
       children:  <>
       <DatePicker size="large" onChange={onChangeDate} placeholder="Chọn ngày"/>
-      <Card title={`Danh sách bác sĩ làm việc trong ngày ${datePicked || ""}`} style={{marginTop: 16,}}>
+      <Card 
+        title={`Danh sách bác sĩ làm việc trong ngày ${datePicked || ""}`} 
+        style={{marginTop: 16}}
+        extra={
+          datePicked &&
+          <Button type="dashed" onClick={() => {fetchDataVet(); setModalAddVet(true)}}>
+            Thêm bác sĩ
+          </Button>
+        }
+      >
       {dataVet.length !== 0 ? dataVet.map((item,index)=>
       (
         <Card.Grid
@@ -270,7 +330,18 @@ const Slot = () => {
          <h3>Bác sĩ {doctorPicked ? doctorPicked.veterinarian.name : ""}, {datePicked}</h3>
          <Row gutter={[26,20]}>
             {dataVetSlot.length !==0 && dataVetSlot.map((item,index)=>(
-              <Col span={6} key={index}><Button size="large" type="default" onClick={()=>{setVetSlotDetail(item); setModalDeleteVetSlotDetail(true)}} disabled={item.status === "un_available" ? true : false}>{item.time_slot_clinic_id === null ? "Bác sĩ làm việc cả ngày" : item.time_slot_clinic.slot_clinic.time}</Button></Col>
+              <Col span={6} key={index}>
+                <Button size="large" type="default" onClick={()=>{
+                if(item.time_slot_clinic_id === null){
+                  
+                }else {
+                  setVetSlotDetail(item); setModalDeleteVetSlotDetail(true)
+                }
+                }
+                } 
+                disabled={item.status === "un_available" ? true : false}>{item.time_slot_clinic_id === null ? "Bác sĩ làm việc cả ngày" : item.time_slot_clinic.slot_clinic.time}
+                </Button>
+              </Col>
             ))
             }          
         </Row>
@@ -299,11 +370,54 @@ const Slot = () => {
       >
         <p>Bác có chắc hủy slot {vetSlotDetail && vetSlotDetail.time_slot_clinic.slot_clinic.time} của bác sĩ {doctorPicked && doctorPicked.veterinarian.name} ?</p>
       </Modal>
-      <Card title={`Danh sách các slot làm việc trong ngày ${datePicked || ""}`} style={{marginTop: 16}}>
+      <Modal
+        title="THÊM BÁC SĨ"
+        centered
+        open={modalAddVet}
+        onOk={() => setModalAddVet(false)}
+        onCancel={() => setModalAddVet(false)}
+        width={800}
+      >
+        <div style={{margin: 40}}>
+        <Row gutter={[26,30]}>
+        {dataVetAdd.length !==0 && dataVetAdd.map((item,index)=>(
+        <Col span={8} key={index}>
+        <div>
+        <Avatar size={64} src={item.image} />
+        <Popconfirm
+          title="Thêm slot"
+          description={`Bạn có chắc thêm bác sĩ này vào ngày ${datePicked && datePicked} ?`}
+          onConfirm={()=>{createNewTimeSlotClinic(item.slot_clinic_id)}}
+          okText="OK"
+          cancelText="Đóng"
+          icon={
+            <QuestionCircleOutlined
+              style={{
+                color: '#32B768',
+              }}
+          />
+          }>
+            <Button size="large">{item.name}</Button>
+        </Popconfirm>
+        </div>
+        </Col>
+        ))}
+        </Row>
+        </div>
+      </Modal>
+      <Card 
+        title={`Danh sách các slot làm việc trong ngày ${datePicked || ""}`} style={{marginTop: 16}}
+        extra={
+          datePicked &&
+          <Button type="dashed" onClick={() => {fetchDataSlotClinic(); setModalAddTimeSlotClinic(true)}}>
+            Tạo slot mới
+          </Button>
+        }
+      >
       {dataTimeSlotClinic.length !== 0 ? dataTimeSlotClinic.map((item,index)=>
       (
         <Card.Grid
-        style={{width: "10%", alignItems: 'center'}}
+        style={{width: "10%", textAlign: "center"}}
         key={index}
         onClick={()=>{}}
         >
@@ -313,6 +427,39 @@ const Slot = () => {
       <h3>Không có slot làm việc trong ngày này</h3>)
       }
       </Card>
+      <Modal
+        title={`THÊM SLOT MỚI CHO NGÀY ${datePicked && datePicked}`}
+        centered
+        width={800}
+        open={modalAddTimeSlotClinic}
+        onOk={() => setModalAddTimeSlotClinic(false)}
+        onCancel={() => setModalAddTimeSlotClinic(false)}
+      >
+        <div style={{width: '50%', marginTop: 20}}>
+         <Row gutter={[26,20]}>
+            {dataSlotClinic.length !==0 && dataSlotClinic.map((item,index)=>(
+              <Col span={6} key={index}>
+                 <Popconfirm
+                    title="Thêm slot"
+                    description={`Bạn có chắc thêm slot này vào ngày ${datePicked && datePicked} ?`}
+                    onConfirm={()=>{createNewTimeSlotClinic(item.slot_clinic_id)}}
+                    okText="OK"
+                    cancelText="Đóng"
+                    icon={
+                        <QuestionCircleOutlined
+                        style={{
+                        color: '#32B768',
+                        }}
+                        />
+                    }>
+                    <Button size="large">{item.time}</Button>
+                </Popconfirm>
+              </Col>
+            ))
+            }          
+        </Row>
+        </div>
+      </Modal>
     </>,
     },
     {

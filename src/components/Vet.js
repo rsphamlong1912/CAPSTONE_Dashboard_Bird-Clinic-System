@@ -428,7 +428,7 @@ const Vet = () => {
           Tạo tài khoản bác sĩ
         </Button>
         <Modal
-          title="Tạo tài khoản bác sĩ"
+          title="TẠO TÀI KHOẢN BÁC SĨ"
           centered
           open={open}
           onOk={() => setOpen(false)}

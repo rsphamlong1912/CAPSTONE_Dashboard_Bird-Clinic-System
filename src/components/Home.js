@@ -451,12 +451,13 @@ function Home() {
           </table>
         </div>
       </div>
-      <div className="bookingList">
-        <h1 style={{ color: "black" }}>DANH SÁCH LỊCH KHÁM</h1>
+      <div className="bookingList" style={{marginTop: 100}}>
+        <h1 style={{ color: "black" }}>THEO DÕI LỊCH KHÁM</h1>
         <DatePicker
           size="large"
           onChange={onChangeDate}
           placeholder="Chọn ngày"
+          style={{marginBottom: 20}}
         />
         <Table
           columns={columnsBooking}
