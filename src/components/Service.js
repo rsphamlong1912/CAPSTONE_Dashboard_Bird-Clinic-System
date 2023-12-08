@@ -9,34 +9,19 @@ import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import createAxios from "../services/axios";
 const API = createAxios();
+// Định dạng tổng tiền theo tiền tệ Việt Nam
+const formattedPrice = (price) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(price);
+};
 
 const columns = [
   {
     title: "STT",
     dataIndex: "index",
     sorter: (a, b) => a.index - b.index,
-    width: "10%",
-  },
-  {
-    title: "ID Gói Dịch vụ",
-    dataIndex: "service_package_id",
-    filters: [
-      {
-        text: "Joe",
-        value: "Joe",
-      },
-      {
-        text: "Category 1",
-        value: "Category 1",
-      },
-      {
-        text: "Category 2",
-        value: "Category 2",
-      },
-    ],
-    filterMode: "tree",
-    filterSearch: true,
-    onFilter: (value, record) => record.name.startsWith(value),
     width: "10%",
   },
   {
@@ -54,6 +39,7 @@ const columns = [
   {
     title: "Giá tiền",
     dataIndex: "price",
+    render: (price) => formattedPrice(price),
     filters: [
       {
         text: "London",
@@ -101,28 +87,6 @@ const columnsService = [
     width: "10%",
   },
   {
-    title: "ID Dịch vụ",
-    dataIndex: "service_id",
-    filters: [
-      {
-        text: "Joe",
-        value: "Joe",
-      },
-      {
-        text: "Category 1",
-        value: "Category 1",
-      },
-      {
-        text: "Category 2",
-        value: "Category 2",
-      },
-    ],
-    filterMode: "tree",
-    filterSearch: true,
-    onFilter: (value, record) => record.name.startsWith(value),
-    width: "10%",
-  },
-  {
     title: "Tên dịch vụ",
     dataIndex: "name",
     sorter: (a, b) => a.age - b.age,
@@ -164,12 +128,6 @@ const columnsBirdBreed = [
   {
     title: "Giống",
     dataIndex: "breed",
-    width: "30%",
-  },
-  {
-    title: "Size ID",
-    dataIndex: "bird_size_id",
-    sorter: (a, b) => a.bird_size_id - b.bird_size_id,
     width: "30%",
   },
   {
