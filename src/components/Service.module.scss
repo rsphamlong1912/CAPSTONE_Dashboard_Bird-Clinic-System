@@ -19,3 +19,9 @@
     border: 1px solid #e5e5e5;
   }
 }
+.top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

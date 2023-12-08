@@ -3,7 +3,7 @@ import { Button, Flex, Form, Input, Select, Upload } from "antd";
 import { Table } from "antd";
 import styles from "./Service.module.scss";
 import { EditFilled } from "@ant-design/icons";
-import { BsCheckLg, BsPersonFillAdd } from "react-icons/bs";
+import { BsPlusCircleFill } from "react-icons/bs";
 import { Tabs, Modal, message } from "antd";
 import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 
@@ -345,13 +345,13 @@ const Service = () => {
       );
       if (response) {
         console.log("Change thanh cong");
-        message.success(`Update service thành công.`);
+        message.success(`Update giống chim thành công.`);
         fetchBirdBreed();
         // fetchServiceType();
       }
     } catch (error) {
       console.log(error);
-      message.error(`Update service thất bại.`);
+      message.error(`Update giống chim thất bại.`);
     }
   };
   const updateService = async () => {
@@ -574,14 +574,14 @@ const Service = () => {
 
   return (
     <main className="main-container">
+      <div className={styles.top}>
       <h2 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h2>
       <Button
         type="primary"
-        value="large"
-        icon={<BsPersonFillAdd size={20} />}
+        size="large"
         onClick={onHandleCreateService}
       >
-        Tạo dịch vụ mới
+        Thêm dịch vụ mới
       </Button>
       {/* MODAL CHINH SUA DICH VU  */}
       <Modal
@@ -622,23 +622,28 @@ const Service = () => {
           </tbody>
         </table>
       </Modal>
+      </div>
       <Table
         columns={columnsService}
         dataSource={serviceList}
         onChange={onChange}
       />
+      <div className={styles.top} style={{marginTop: 40}}>
       <h2 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h2>
-
       <Button
         type="primary"
-        value="large"
-        icon={<BsPersonFillAdd size={20} />}
+        size="large"
+        icon={
+          <BsPlusCircleFill size={23}/>
+        }
+        style={{display: "flex", alignItems: 'center'}}
         onClick={onHandleCreateServicePackage}
       >
-        Tạo dịch vụ con mới
+        Thêm gói dịch vụ mới
       </Button>
+      </div>
       <Modal
-        title="Tạo dịch vụ mới"
+        title="Thêm gói dịch vụ mới"
         centered
         open={openModalCreateService}
         onOk={() => setOpenModalCreateService(false)}
@@ -786,7 +791,7 @@ const Service = () => {
         </Form>
       </Modal>
       <Modal
-        title="Tạo dịch vụ con mới"
+        title="Thêm gói dịch vụ mới"
         centered
         open={openModalCreateServicePackage}
         onOk={() => setOpenModalCreateServicePackage(false)}
@@ -971,11 +976,11 @@ const Service = () => {
         dataSource={servicePackageList}
         onChange={onChange}
       />
+      <div className={styles.top} style={{marginTop: 40, width: '50%'}}>
       <h2 style={{ color: "black" }}>DANH SÁCH GIỐNG CHIM</h2>
       <Button
         type="primary"
-        value="large"
-        icon={<BsPersonFillAdd size={20} />}
+        size="large"
         onClick={onHandleCreateBreedBird}
       >
         Tạo giống chim mới
@@ -1094,11 +1099,14 @@ const Service = () => {
           </Form.Item>
         </Form>
       </Modal>
+      </div>
+      <div style={{width: '50%'}}>
       <Table
         columns={columnsBirdBreed}
         dataSource={birdBreedList}
         onChange={onChange}
       />
+      </div>
     </main>
   );
 };
