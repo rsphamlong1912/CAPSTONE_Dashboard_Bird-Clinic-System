@@ -143,6 +143,46 @@ const columnsBirdBreed = [
     width: "10%",
   },
 ];
+const columnsMedicine = [
+  {
+    title: "STT",
+    dataIndex: "index",
+    sorter: (a, b) => a.breed_id - b.breed_id,
+    width: "10%",
+  },
+  {
+    title: "Tên",
+    dataIndex: "name",
+    width: "30%",
+  },
+  {
+    title: "Đơn vị",
+    dataIndex: "unit",
+    sorter: (a, b) => a.bird_size_id - b.bird_size_id,
+    width: "10%",
+  },
+  {
+    title: "Mô tả",
+    dataIndex: "description",
+    sorter: (a, b) => a.bird_size_id - b.bird_size_id,
+    width: "15%",
+  },
+  {
+    title: "HDSD",
+    dataIndex: "usage",
+    width: "15%",
+  },
+  {
+    title: "Tác dụng phụ",
+    dataIndex: "sideEffects",
+    width: "10%",
+  },
+  {
+    title: "Hành động",
+    dataIndex: "action",
+    width: "10%",
+  },
+];
 
 // const onChange = (pagination, filters, sorter, extra) => {
 //   console.log("params", pagination, filters, sorter, extra);
@@ -152,13 +192,16 @@ const Service = () => {
   const [tab, setTab] = useState("ST001");
   const [openDetailBirdBreed, setOpenDetailBirdBreed] = useState();
   const [openDetailService, setOpenDetailService] = useState();
+  const [openDetailMedicine, setOpenDetailMedicine] = useState();
   const [openDetailServicePackage, setOpenDetailServicePackage] = useState();
+  const [openModalCreateMedicine, setOpenModalCreateMedicine] = useState();
   const [openModalCreateBreedBird, setOpenModalCreateBreedBird] = useState();
   const [openModalCreateService, setOpenModalCreateService] = useState();
   const [openModalCreateServicePackage, setOpenModalCreateServicePackage] =
     useState();
   const [loading, setLoading] = useState(false);
 
+  const [medicineList, setMedicineList] = useState();
   const [birdSizeList, setBirdSizeList] = useState();
   const [serviceTypeList, setServiceTypeList] = useState([]);
   const [serviceSelected, setServiceSelected] = useState();
@@ -167,6 +210,7 @@ const Service = () => {
   const [serviceList, setServiceList] = useState([]);
   const [birdBreedList, setBirdBreedList] = useState([]);
   const [birdBreedSelected, setBirdBreedSelected] = useState([]);
+  const [medicineSelected, setMedicineSelected] = useState();
 
   const [imageUrl, setImageUrl] = useState();
   const [imageService, setImageService] = useState([]);
@@ -185,6 +229,20 @@ const Service = () => {
   const [dataBreed, setDataBreed] = useState({
     breed: "",
     bird_size_id: "",
+  });
+  const [dataMedicineEdit, setDataMedicineEdit] = useState({
+    name: "",
+    unit: "",
+    usage: "",
+    description: "",
+    sideEffects: "",
+  });
+  const [dataMedicineNew, setDataMedicineNew] = useState({
+    name: "",
+    unit: "",
+    usage: "",
+    description: "",
+    sideEffects: "",
   });
   const [dataBreedNew, setDataBreedNew] = useState({
     breed: "",
@@ -216,6 +274,18 @@ const Service = () => {
 
     setDataServicePackage((dataServicePackage) => ({
       ...dataServicePackage,
+      [name]: value,
+    }));
+  };
+  const handleInputMedicine = (e) => {
+    const { name, value } = e.target;
+
+    setDataMedicineEdit((dataMedicineEdit) => ({
+      ...dataMedicineEdit,
+      [name]: value,
+    }));
+    setDataMedicineNew((dataMedicineNew) => ({
+      ...dataMedicineNew,
       [name]: value,
     }));
   };
@@ -277,6 +347,18 @@ const Service = () => {
       description: item.description,
     });
     console.log("item", item);
+  };
+  const onHandleEditMedicine = (item) => {
+    setOpenDetailMedicine(true);
+    setMedicineSelected(item);
+    setDataMedicineEdit({
+      name: item.name,
+      unit: item.unit,
+      description: item.description,
+      usage: item.usage,
+      sideEffects: item.sideEffects,
+    });
+    console.log("detail thuoc ne", item);
   };
 
   const onHandleCreateBreedBird = () => {
@@ -344,6 +426,28 @@ const Service = () => {
         message.success(`Update service thành công.`);
         fetchServicePackage();
         fetchServiceType();
+      }
+    } catch (error) {
+      console.log(error);
+      message.error(`Update service thất bại.`);
+    }
+  };
+  const updateMedicine = async () => {
+    try {
+      const response = await API.put(
+        `/medicine/${medicineSelected.medicine_id}`,
+        {
+          name: dataMedicineEdit.name,
+          unit: dataMedicineEdit.price,
+          description: dataMedicineEdit.description,
+          usage: dataMedicineEdit.usage,
+          sideEffects: dataMedicineEdit.sideEffects,
+        }
+      );
+      if (response) {
+        console.log("Change thanh cong");
+        message.success(`Cập nhật thuốc thành công.`);
+        fetchMedicine();
       }
     } catch (error) {
       console.log(error);
@@ -464,6 +568,34 @@ const Service = () => {
     }
   };
 
+  const fetchMedicine = async () => {
+    try {
+      const response = await API.get(`/medicine/`);
+      if (response.data) {
+        console.log("Medicine ne:", response.data);
+        const dataAfterMap = response.data.map((item, index) => ({
+          key: index,
+          ...item,
+          index: index + 1,
+          action: (
+            <Button
+              type="default"
+              icon={<EditFilled />}
+              onClick={() => {
+                onHandleEditMedicine(item);
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          ),
+        }));
+        setMedicineList(dataAfterMap);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const uploadButton = (
     <div>
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -524,6 +656,7 @@ const Service = () => {
     fetchBirdBreed();
     fetchBirdSize();
     fetchService();
+    fetchMedicine();
   }, []);
 
   useEffect(() => {
@@ -533,72 +666,66 @@ const Service = () => {
   return (
     <main className="main-container">
       <div className={styles.top}>
-      <h2 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h2>
-      <Button
-        type="primary"
-        size="large"
-        onClick={onHandleCreateService}
-      >
-        Thêm dịch vụ mới
-      </Button>
-      {/* MODAL CHINH SUA DICH VU  */}
-      <Modal
-        title="Chỉnh sửa dịch vụ"
-        centered
-        open={openDetailService}
-        onOk={() => {
-          updateService();
-          setOpenDetailService(false);
-        }}
-        onCancel={() => setOpenDetailService(false)}
-        width={500}
-      >
-        <table className={styles.table}>
-          <tbody>
-            <tr>
-              <th>Tên dịch vụ</th>
-              <td>
-                <input
-                  type="text"
-                  name="name"
-                  value={dataService.name}
-                  onChange={handleInputChange1}
-                />
-              </td>
-            </tr>
-            <tr>
-              <th>Mô tả</th>
-              <td>
-                <input
-                  type="text"
-                  name="description"
-                  value={dataService.description}
-                  onChange={handleInputChange1}
-                />{" "}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </Modal>
+        <h2 style={{ color: "black" }}>DANH SÁCH DỊCH VỤ</h2>
+        <Button type="primary" size="large" onClick={onHandleCreateService}>
+          Thêm dịch vụ mới
+        </Button>
+        {/* MODAL CHINH SUA DICH VU  */}
+        <Modal
+          title="Chỉnh sửa dịch vụ"
+          centered
+          open={openDetailService}
+          onOk={() => {
+            updateService();
+            setOpenDetailService(false);
+          }}
+          onCancel={() => setOpenDetailService(false)}
+          width={500}
+        >
+          <table className={styles.table}>
+            <tbody>
+              <tr>
+                <th>Tên dịch vụ</th>
+                <td>
+                  <input
+                    type="text"
+                    name="name"
+                    value={dataService.name}
+                    onChange={handleInputChange1}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>Mô tả</th>
+                <td>
+                  <input
+                    type="text"
+                    name="description"
+                    value={dataService.description}
+                    onChange={handleInputChange1}
+                  />{" "}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </Modal>
       </div>
       <Table
         columns={columnsService}
         dataSource={serviceList}
         onChange={onChange}
       />
-      <div className={styles.top} style={{marginTop: 40}}>
-      <h2 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h2>
-      <Button
-        type="primary"
-        size="large"
-        icon={
-          <BsPlusCircleFill size={23}/>
-        }
-        style={{display: "flex", alignItems: 'center'}}
-        onClick={onHandleCreateServicePackage}
-      >
-        Thêm gói dịch vụ mới
-      </Button>
+      <div className={styles.top} style={{ marginTop: 40 }}>
+        <h2 style={{ color: "black" }}>DANH SÁCH GÓI DỊCH VỤ</h2>
+        <Button
+          type="primary"
+          size="large"
+          icon={<BsPlusCircleFill size={23} />}
+          style={{ display: "flex", alignItems: "center" }}
+          onClick={onHandleCreateServicePackage}
+        >
+          Thêm gói dịch vụ mới
+        </Button>
       </div>
       <Modal
         title="Thêm gói dịch vụ mới"
@@ -934,105 +1061,27 @@ const Service = () => {
         dataSource={servicePackageList}
         onChange={onChange}
       />
-      <div className={styles.top} style={{marginTop: 40, width: '50%'}}>
-      <h2 style={{ color: "black" }}>DANH SÁCH GIỐNG CHIM</h2>
-      <Button
-        type="primary"
-        size="large"
-        onClick={onHandleCreateBreedBird}
-      >
-        Tạo giống chim mới
-      </Button>
-      <Modal
-        title="Chỉnh sửa giống chim"
-        centered
-        open={openDetailBirdBreed}
-        onOk={() => {
-          updateBreed();
-          setOpenDetailBirdBreed(false);
-        }}
-        onCancel={() => setOpenDetailBirdBreed(false)}
-        width={500}
-      >
-        <Form.Item label="Tên giống">
-          <Input
-            onChange={(e) => handleInputBreedChange("breed", e.target.value)}
-            name="breed"
-            value={dataBreed.breed}
-          />
-        </Form.Item>
-        <Form.Item label="Size chim">
-          <Select
-            onChange={(value) => handleInputBreedChange("bird_size_id", value)}
-            name="bird_size_id"
-            value={dataBreed.bird_size_id}
-          >
-            {birdSizeList &&
-              birdSizeList.length > 0 &&
-              birdSizeList.map((item, index) => (
-                <Select.Option
-                  value={item.bird_size_id}
-                  key={item.bird_size_id}
-                >
-                  {item.size}
-                </Select.Option>
-              ))}
-          </Select>
-        </Form.Item>
-      </Modal>
-      <Modal
-        title="Tạo giống chim mới"
-        centered
-        open={openModalCreateBreedBird}
-        onOk={() => setOpenModalCreateBreedBird(false)}
-        onCancel={() => setOpenModalCreateBreedBird(false)}
-        width={600}
-        footer={[
-          <Button key="back" onClick={() => setOpenModalCreateBreedBird(false)}>
-            Hủy
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={async () => {
-              try {
-                const response = await API.post(`/bird-breed/`, {
-                  breed: dataBreedNew.breed,
-                  bird_size_id: dataBreedNew.bird_size_id,
-                });
-                if (response) {
-                  console.log("Thêm giống thành công");
-                  message.success(`Thêm giống thành công.`);
-                  fetchBirdBreed();
-                }
-              } catch (error) {
-                console.log(error);
-                message.error(`Thêm giống thất bại.`);
-              }
-            }}
-          >
-            Xác nhận
-          </Button>,
-        ]}
-      >
-        <Form
-          labelCol={{
-            span: 4,
+      <div className={styles.top} style={{ marginTop: 40, width: "50%" }}>
+        <h2 style={{ color: "black" }}>DANH SÁCH GIỐNG CHIM</h2>
+        <Button type="primary" size="large" onClick={onHandleCreateBreedBird}>
+          Tạo giống chim mới
+        </Button>
+        <Modal
+          title="Chỉnh sửa giống chim"
+          centered
+          open={openDetailBirdBreed}
+          onOk={() => {
+            updateBreed();
+            setOpenDetailBirdBreed(false);
           }}
-          wrapperCol={{
-            span: 14,
-          }}
-          layout="horizontal"
-          // disabled={componentDisabled}
-          style={{
-            maxWidth: 600,
-          }}
+          onCancel={() => setOpenDetailBirdBreed(false)}
+          width={500}
         >
           <Form.Item label="Tên giống">
             <Input
               onChange={(e) => handleInputBreedChange("breed", e.target.value)}
               name="breed"
-              value={dataBreedNew.breed}
+              value={dataBreed.breed}
             />
           </Form.Item>
           <Form.Item label="Size chim">
@@ -1041,7 +1090,7 @@ const Service = () => {
                 handleInputBreedChange("bird_size_id", value)
               }
               name="bird_size_id"
-              value={dataBreedNew.bird_size_id}
+              value={dataBreed.bird_size_id}
             >
               {birdSizeList &&
                 birdSizeList.length > 0 &&
@@ -1055,15 +1104,265 @@ const Service = () => {
                 ))}
             </Select>
           </Form.Item>
-        </Form>
-      </Modal>
+        </Modal>
+        <Modal
+          title="Tạo giống chim mới"
+          centered
+          open={openModalCreateBreedBird}
+          onOk={() => setOpenModalCreateBreedBird(false)}
+          onCancel={() => setOpenModalCreateBreedBird(false)}
+          width={600}
+          footer={[
+            <Button
+              key="back"
+              onClick={() => setOpenModalCreateBreedBird(false)}
+            >
+              Hủy
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              onClick={async () => {
+                try {
+                  const response = await API.post(`/bird-breed/`, {
+                    breed: dataBreedNew.breed,
+                    bird_size_id: dataBreedNew.bird_size_id,
+                  });
+                  if (response) {
+                    console.log("Thêm giống thành công");
+                    message.success(`Thêm giống thành công.`);
+                    fetchBirdBreed();
+                  }
+                } catch (error) {
+                  console.log(error);
+                  message.error(`Thêm giống thất bại.`);
+                }
+              }}
+            >
+              Xác nhận
+            </Button>,
+          ]}
+        >
+          <Form
+            labelCol={{
+              span: 4,
+            }}
+            wrapperCol={{
+              span: 14,
+            }}
+            layout="horizontal"
+            // disabled={componentDisabled}
+            style={{
+              maxWidth: 600,
+            }}
+          >
+            <Form.Item label="Tên giống">
+              <Input
+                onChange={(e) =>
+                  handleInputBreedChange("breed", e.target.value)
+                }
+                name="breed"
+                value={dataBreedNew.breed}
+              />
+            </Form.Item>
+            <Form.Item label="Size chim">
+              <Select
+                onChange={(value) =>
+                  handleInputBreedChange("bird_size_id", value)
+                }
+                name="bird_size_id"
+                value={dataBreedNew.bird_size_id}
+              >
+                {birdSizeList &&
+                  birdSizeList.length > 0 &&
+                  birdSizeList.map((item, index) => (
+                    <Select.Option
+                      value={item.bird_size_id}
+                      key={item.bird_size_id}
+                    >
+                      {item.size}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-      <div style={{width: '50%'}}>
-      <Table
-        columns={columnsBirdBreed}
-        dataSource={birdBreedList}
-        onChange={onChange}
-      />
+      <div style={{ width: "50%" }}>
+        <Table
+          columns={columnsBirdBreed}
+          dataSource={birdBreedList}
+          onChange={onChange}
+        />
+      </div>
+      <div className={styles.top} style={{ marginTop: 40 }}>
+        <h2 style={{ color: "black" }}>DANH SÁCH THUỐC</h2>
+        <Button
+          type="primary"
+          size="large"
+          onClick={() => setOpenModalCreateMedicine(true)}
+        >
+          Tạo thuốc mới
+        </Button>
+        <Modal
+          title="Chỉnh sửa thuốc"
+          centered
+          open={openDetailMedicine}
+          onOk={() => {
+            updateMedicine();
+            setOpenDetailMedicine(false);
+          }}
+          onCancel={() => setOpenDetailMedicine(false)}
+          width={500}
+        >
+          <Form
+            labelCol={{
+              span: 6,
+            }}
+            wrapperCol={{
+              span: 14,
+            }}
+            layout="horizontal"
+            // disabled={componentDisabled}
+            style={{
+              maxWidth: 600,
+            }}
+          >
+            <Form.Item label="Tên thuốc">
+              <Input
+                onChange={handleInputMedicine}
+                name="name"
+                value={dataMedicineEdit.name}
+              />
+            </Form.Item>
+            <Form.Item label="Đơn vị">
+              <Input
+                onChange={handleInputMedicine}
+                name="unit"
+                value={dataMedicineEdit.unit}
+              />
+            </Form.Item>
+            <Form.Item label="Mô tả">
+              <Input
+                onChange={handleInputMedicine}
+                name="description"
+                value={dataMedicineEdit.description}
+              />
+            </Form.Item>
+            <Form.Item label="HDSD">
+              <Input
+                onChange={handleInputMedicine}
+                name="usage"
+                value={dataMedicineEdit.usage}
+              />
+            </Form.Item>
+            <Form.Item label="Tác dụng phụ">
+              <Input
+                onChange={handleInputMedicine}
+                name="sideEffects"
+                value={dataMedicineEdit.sideEffects}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+        <Modal
+          title="Tạo thuốc mới"
+          centered
+          open={openModalCreateMedicine}
+          onOk={() => setOpenModalCreateMedicine(false)}
+          onCancel={() => setOpenModalCreateMedicine(false)}
+          width={600}
+          footer={[
+            <Button
+              key="back"
+              onClick={() => setOpenModalCreateMedicine(false)}
+            >
+              Hủy
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              onClick={async () => {
+                try {
+                  const response = await API.post(`/medicine/`, {
+                    name: dataMedicineNew.name,
+                    unit: dataMedicineNew.price,
+                    description: dataMedicineNew.description,
+                    usage: dataMedicineNew.usage,
+                    sideEffects: dataMedicineNew.sideEffects,
+                  });
+                  if (response) {
+                    console.log("Thêm thuốc thành công");
+                    message.success(`Thêm thuốc thành công.`);
+                    fetchMedicine();
+                  }
+                } catch (error) {
+                  console.log(error);
+                  message.error(`Thêm thuốc thất bại.`);
+                }
+              }}
+            >
+              Xác nhận
+            </Button>,
+          ]}
+        >
+          <Form
+            labelCol={{
+              span: 4,
+            }}
+            wrapperCol={{
+              span: 14,
+            }}
+            layout="horizontal"
+            // disabled={componentDisabled}
+            style={{
+              maxWidth: 600,
+            }}
+          >
+            <Form.Item label="Tên thuốc">
+              <Input
+                onChange={handleInputMedicine}
+                name="name"
+                value={dataMedicineNew.name}
+              />
+            </Form.Item>
+            <Form.Item label="Đơn vị">
+              <Input
+                onChange={handleInputMedicine}
+                name="unit"
+                value={dataMedicineNew.unit}
+              />
+            </Form.Item>
+            <Form.Item label="Mô tả">
+              <Input
+                onChange={handleInputMedicine}
+                name="description"
+                value={dataMedicineNew.description}
+              />
+            </Form.Item>
+            <Form.Item label="HDSD">
+              <Input
+                onChange={handleInputMedicine}
+                name="usage"
+                value={dataMedicineNew.usage}
+              />
+            </Form.Item>
+            <Form.Item label="Tác dụng phụ">
+              <Input
+                onChange={handleInputMedicine}
+                name="sideEffects"
+                value={dataMedicineNew.sideEffects}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
+      <div>
+        <Table
+          columns={columnsMedicine}
+          dataSource={medicineList}
+          onChange={onChange}
+        />
       </div>
     </main>
   );

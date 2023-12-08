@@ -363,7 +363,7 @@ function Home() {
           <div className="card-inner"></div>
           <h1>{formattedPrice(totalPrice)}</h1>
         </div>
-        <div className="card">
+        {/* <div className="card">
           <div className="card-inner">
             <h3>CUSTOMERS</h3>
             <BsPeopleFill className="card_icon" />
@@ -376,7 +376,7 @@ function Home() {
             <BsFillBellFill className="card_icon" />
           </div>
           <h1>42</h1>
-        </div>
+        </div> */}
       </div>
 
       <div className="charts">
@@ -451,13 +451,13 @@ function Home() {
           </table>
         </div>
       </div>
-      <div className="bookingList" style={{marginTop: 100}}>
+      <div className="bookingList" style={{ marginTop: 100 }}>
         <h1 style={{ color: "black" }}>THEO DÕI LỊCH KHÁM</h1>
         <DatePicker
           size="large"
           onChange={onChangeDate}
           placeholder="Chọn ngày"
-          style={{marginBottom: 20}}
+          style={{ marginBottom: 20 }}
         />
         <Table
           columns={columnsBooking}
