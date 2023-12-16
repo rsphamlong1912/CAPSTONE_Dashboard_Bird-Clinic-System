@@ -3,27 +3,15 @@ import {
   BsFillArchiveFill,
   BsFillGrid3X3GapFill,
   BsPeopleFill,
-  BsFillBellFill,
 } from "react-icons/bs";
 import { TrophyOutlined } from "@ant-design/icons";
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
 import createAxios from "../services/axios";
 import { Button, DatePicker, Form, Select, Table } from "antd";
 import { EditFilled } from "@ant-design/icons";
 import { EditOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import styles from "./Home.module.scss";
+import BarChart from "./chart/BarChart";
+import LineChart from "./chart/LineChart";
 const API = createAxios();
 
 function Home() {
@@ -32,8 +20,60 @@ function Home() {
   const [serviceFormDetailList, setServiceFormDetailList] = useState();
   const [datePicked, setDatePicked] = useState();
   const [rankServiceList, setRankServiceList] = useState();
-
   const [totalPrice, setTotalPrice] = useState(0);
+  const [bookingData, setBookingData] = useState();
+
+  // Hàm trả về mảng 6 ngày trước và ngày hôm nay theo định dạng yyyy-mm-dd
+  const getSixDaysAgoAndToday = () => {
+    const dates = [];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Thêm '0' phía trước nếu cần
+      const day = date.getDate().toString().padStart(2, "0"); // Thêm '0' phía trước nếu cần
+
+      const formattedDate = `${year}-${month}-${day}`;
+      dates.push(formattedDate);
+    }
+
+    return dates;
+  };
+
+  useEffect(() => {
+    const sixDaysAgoAndToday = getSixDaysAgoAndToday();
+    const dataBooking = new Array(sixDaysAgoAndToday.length); // Mảng để lưu các dữ liệu từ API
+
+    // Sử dụng Promise.all cùng với map để duyệt qua mảng và gọi API
+    Promise.all(
+      sixDaysAgoAndToday.map((item, index) =>
+        API.get(`/booking/?arrival_date=${item}`)
+          .then((response) => {
+            const parts = item.split("-"); // Tách ngày, tháng và năm
+            const formattedDate = `${parts[2]}/${parts[1]}`; // Định dạng lại theo dd/mm
+            dataBooking[index] = {
+              data: response.data,
+              date: formattedDate, // Ngày đã định dạng lại
+              totalBooking: response.data.length,
+              totalMoney: response.data.reduce((accumulator, item) => {
+                const price = parseFloat(item.money_has_paid);
+                return accumulator + price;
+              }, 0),
+            }; // Lưu response vào vị trí tương ứng trong mảng dataBooking
+          })
+          .catch((error) => {
+            console.error(error); // Xử lý lỗi nếu có
+          })
+      )
+    ).then(() => {
+      console.log("dataBooking ne Long", dataBooking);
+      setBookingData(dataBooking);
+      // Xử lý dữ liệu sau khi đã có tất cả các phản hồi từ API
+    });
+  }, []);
 
   const columnsBooking = [
     {
@@ -284,51 +324,6 @@ function Home() {
     }).format(price);
   };
 
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
-
   useEffect(() => {
     fetchBooking();
   }, [datePicked]);
@@ -380,53 +375,52 @@ function Home() {
       </div>
 
       <div className="charts">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="pv" fill="#8884d8" />
-            <Bar dataKey="uv" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
-        {/* <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="pv"
-              stroke="#8884d8"
-              activeDot={{ r: 8 }}
+        <div style={{ width: 800 }}>
+          {bookingData && (
+            <BarChart
+              chartData={{
+                labels: bookingData.map((data) => data.date),
+                datasets: [
+                  {
+                    label: "Tổng số cuộc hẹn trong ngày",
+                    data: bookingData.map((data) => data.totalBooking),
+                    backgroundColor: [
+                      "rgba(75,192,192,1)",
+                      // "#ecf0f1",
+                      // "#50AF95",
+                      // "#f3ba2f",
+                      // "#2a71d0",
+                    ],
+                    // borderColor: "black",
+                    borderWidth: 2,
+                  },
+                ],
+              }}
             />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-          </LineChart>
-        </ResponsiveContainer> */}
+          )}
+          {bookingData && (
+            <LineChart
+              chartData={{
+                labels: bookingData.map((data) => data.date),
+                datasets: [
+                  {
+                    label: "Tổng doanh thu theo ngày",
+                    data: bookingData.map((data) => data.totalMoney),
+                    backgroundColor: [
+                      // "rgba(75,192,192,1)",
+                      // "#ecf0f1",
+                      // "#50AF95",
+                      // "#f3ba2f",
+                      "#2a71d0",
+                    ],
+                    // borderColor: "black",
+                    borderWidth: 2,
+                  },
+                ],
+              }}
+            />
+          )}
+        </div>
         <div className={styles.rankingService}>
           <h3>
             <TrophyOutlined /> Top các dịch vụ được sử dụng
